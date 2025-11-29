@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate App Icons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #003366;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #004488;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            margin: 20px 0;
+            display: block;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚛 Mobile Carb Check - Icon Generator</h1>
+
+        <div class="info">
+            <strong>Instructions:</strong>
+            <ol>
+                <li>Click the buttons below to generate icons</li>
+                <li>Right-click each canvas and "Save Image As..."</li>
+                <li>Save as icon-192.png and icon-512.png in the public folder</li>
+            </ol>
+        </div>
+
+        <button onclick="generateIcon(192)">Generate 192x192 Icon</button>
+        <button onclick="generateIcon(512)">Generate 512x512 Icon</button>
+        <button onclick="generateScreenshot()">Generate Screenshot</button>
+
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = '#003366';
+            ctx.fillRect(0, 0, size, size);
+
+            // Add rounded corners
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.15);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+
+            const scale = size / 512;
+
+            // Truck body (simplified for canvas)
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(size * 0.22, size * 0.42, size * 0.35, size * 0.16);
+
+            // Truck cab
+            ctx.fillRect(size * 0.14, size * 0.39, size * 0.12, size * 0.16);
+
+            // Wheels
+            ctx.fillStyle = '#2C3E50';
+            const wheelY = size * 0.67;
+            const wheelR = size * 0.05;
+            ctx.beginPath();
+            ctx.arc(size * 0.22, wheelY, wheelR, 0, Math.PI * 2);
+            ctx.arc(size * 0.39, wheelY, wheelR, 0, Math.PI * 2);
+            ctx.arc(size * 0.54, wheelY, wheelR, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Checkmark
+            ctx.strokeStyle = '#00FF00';
+            ctx.lineWidth = size * 0.04;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(size * 0.62, size * 0.38);
+            ctx.lineTo(size * 0.68, size * 0.44);
+            ctx.lineTo(size * 0.80, size * 0.28);
+            ctx.stroke();
+
+            // Text "CARB"
+            ctx.fillStyle = '#FFD700';
+            ctx.font = `bold ${size * 0.09}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('CARB', size * 0.5, size * 0.85);
+
+            // Display
+            const output = document.getElementById('output');
+            const container = document.createElement('div');
+            container.innerHTML = `<h3>Icon ${size}x${size}</h3>`;
+            container.appendChild(canvas);
+            output.appendChild(container);
+        }
+
+        function generateScreenshot() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 540;
+            canvas.height = 720;
+            const ctx = canvas.getContext('2d');
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 720);
+            gradient.addColorStop(0, '#003366');
+            gradient.addColorStop(1, '#001122');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 540, 720);
+
+            // Header
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('CARB Check', 270, 80);
+
+            // Subtitle
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '24px Arial';
+            ctx.fillText('Heavy Duty Diesel Compliance', 270, 130);
+
+            // Features
+            ctx.textAlign = 'left';
+            ctx.font = '28px Arial';
+            const features = [
+                '✅ Instant VIN Checks',
+                '🤖 AI Assistant',
+                '📸 Media Analysis',
+                '📱 Offline Support',
+                '📞 24/7 Support'
+            ];
+
+            features.forEach((feature, i) => {
+                ctx.fillText(feature, 60, 250 + (i * 80));
+            });
+
+            // Footer
+            ctx.fillStyle = '#FFD700';
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 32px Arial';
+            ctx.fillText('844-685-8922', 270, 650);
+
+            const output = document.getElementById('output');
+            const container = document.createElement('div');
+            container.innerHTML = '<h3>Screenshot 540x720</h3>';
+            container.appendChild(canvas);
+            output.appendChild(container);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- Viewport - Allow zooming for accessibility -->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes"
+  />
+
+  <title>Mobile CARB Check</title>
+  <meta name="description" content="California's Premier Mobile CARB Compliance App for Heavy Duty Diesel Vehicles" />
+
+  <!-- Color theme -->
+  <meta name="theme-color" content="#0A0A0F" />
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/icon.png" />
+
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <style>
+    /* Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Body - Full screen app */
+    html, body, #root {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #0A0A0F;
+      color: #E8E8F0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Loading indicator */
+    #root:empty::before {
+      content: 'Loading Mobile CARB Check...';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      font-size: 18px;
+      color: #8E8E93;
+    }
+
+    /* Accessibility: Focus visible */
+    *:focus-visible {
+      outline: 2px solid #3E6AE1;
+      outline-offset: 2px;
+    }
+
+    /* Accessibility: Skip to main content link */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: #3E6AE1;
+      color: white;
+      padding: 8px;
+      text-decoration: none;
+      z-index: 100;
+    }
+
+    .skip-link:focus {
+      top: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Skip to main content (accessibility) -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Main app container -->
+  <main id="root" role="main" aria-label="Mobile CARB Check Application"></main>
+
+  <!-- Noscript fallback -->
+  <noscript>
+    <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center;">
+      <div>
+        <h1>Mobile CARB Check</h1>
+        <p>JavaScript is required to run this application. Please enable JavaScript in your browser settings.</p>
+      </div>
+    </div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Mobile CARB Check",
+    "slug": "mobile-carb-check",
+    "version": "3.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0F"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.carbcheck.mobilecarbcheck",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Camera is used to scan VIN numbers for CARB compliance checks",
+        "NSMicrophoneUsageDescription": "Microphone is used for voice notes during testing"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0A0F"
+      },
+      "package": "com.carbcheck.mobilecarbcheck",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Mobile CARB Check to access your camera for VIN scanning"
+        }
+      ]
+    ]
+  }
+}
