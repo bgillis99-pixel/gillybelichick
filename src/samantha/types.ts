@@ -61,7 +61,7 @@ export interface PlaceResult {
 export interface SMSResult {
   to: string;
   body: string;
-  status: 'sent' | 'drafted' | 'failed';
+  status: 'sent' | 'ready' | 'drafted' | 'failed';
   timestamp?: string;
 }
 

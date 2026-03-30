@@ -6,11 +6,10 @@ interface Props {
 }
 
 const SMSCard: React.FC<Props> = ({ sms }) => {
-  const statusColors = {
-    sent: 'bg-green-100 text-green-700',
-    drafted: 'bg-yellow-100 text-yellow-700',
-    failed: 'bg-red-100 text-red-700',
-  };
+  // Generate links for sending
+  const cleanNumber = sms.to.replace(/[^\d+]/g, '');
+  const smsLink = `sms:${cleanNumber}?body=${encodeURIComponent(sms.body)}`;
+  const googleVoiceLink = `https://voice.google.com/u/0/messages?phoneNumber=${encodeURIComponent(cleanNumber)}`;
 
   return (
     <div className="bg-white rounded-xl border border-teal-200/50 shadow-sm overflow-hidden animate-fade-in">
@@ -23,13 +22,27 @@ const SMSCard: React.FC<Props> = ({ sms }) => {
             </svg>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <p className="font-medium text-sm text-sam-text">To: {sms.to}</p>
-              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${statusColors[sms.status]}`}>
-                {sms.status}
-              </span>
+            <p className="font-medium text-sm text-sam-text">To: {sms.to}</p>
+            <p className="text-xs text-sam-text/80 mt-1 line-clamp-3">{sms.body}</p>
+            <div className="flex gap-2 mt-2">
+              <a
+                href={smsLink}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-500 text-white text-xs font-medium hover:bg-teal-600 active:scale-95 transition-all no-underline"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                Send via Messages
+              </a>
+              <a
+                href={googleVoiceLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 text-sam-text text-xs font-medium hover:bg-gray-200 active:scale-95 transition-all no-underline"
+              >
+                Google Voice
+              </a>
             </div>
-            <p className="text-xs text-sam-text/80 mt-1 line-clamp-2">{sms.body}</p>
           </div>
         </div>
       </div>
