@@ -7,8 +7,8 @@ export interface Message {
 }
 
 export interface ToolResultCard {
-  type: 'calendar' | 'email' | 'company';
-  data: CalendarEvent | EmailSummary | CompanyInfo;
+  type: 'calendar' | 'email' | 'company' | 'directions' | 'places' | 'sms';
+  data: CalendarEvent | EmailSummary | CompanyInfo | DirectionsResult | PlaceResult | SMSResult;
 }
 
 export interface CalendarEvent {
@@ -37,6 +37,32 @@ export interface CompanyInfo {
   phone?: string;
   vehicles?: number;
   safetyRating?: string;
+}
+
+export interface DirectionsResult {
+  origin: string;
+  destination: string;
+  distance: string;
+  duration: string;
+  steps?: string[];
+  mapUrl?: string;
+}
+
+export interface PlaceResult {
+  name: string;
+  address: string;
+  rating?: number;
+  phone?: string;
+  distance?: string;
+  placeType?: string;
+  mapUrl?: string;
+}
+
+export interface SMSResult {
+  to: string;
+  body: string;
+  status: 'sent' | 'drafted' | 'failed';
+  timestamp?: string;
 }
 
 export interface ChatState {

@@ -1,9 +1,11 @@
 import React from 'react';
-import { Message } from '../types';
+import { Message, CalendarEvent, EmailSummary, CompanyInfo, DirectionsResult, PlaceResult, SMSResult } from '../types';
 import CalendarCard from './CalendarCard';
 import EmailCard from './EmailCard';
 import CompanyCard from './CompanyCard';
-import { CalendarEvent, EmailSummary, CompanyInfo } from '../types';
+import DirectionsCard from './DirectionsCard';
+import PlaceCard from './PlaceCard';
+import SMSCard from './SMSCard';
 
 interface Props {
   message: Message;
@@ -31,16 +33,22 @@ const MessageBubble: React.FC<Props> = ({ message }) => {
       {message.toolResults && message.toolResults.length > 0 && (
         <div className="mt-2 space-y-2 max-w-[85%]">
           {message.toolResults.map((result, idx) => {
-            if (result.type === 'calendar') {
-              return <CalendarCard key={idx} event={result.data as CalendarEvent} />;
+            switch (result.type) {
+              case 'calendar':
+                return <CalendarCard key={idx} event={result.data as CalendarEvent} />;
+              case 'email':
+                return <EmailCard key={idx} email={result.data as EmailSummary} />;
+              case 'company':
+                return <CompanyCard key={idx} company={result.data as CompanyInfo} />;
+              case 'directions':
+                return <DirectionsCard key={idx} directions={result.data as DirectionsResult} />;
+              case 'places':
+                return <PlaceCard key={idx} place={result.data as PlaceResult} />;
+              case 'sms':
+                return <SMSCard key={idx} sms={result.data as SMSResult} />;
+              default:
+                return null;
             }
-            if (result.type === 'email') {
-              return <EmailCard key={idx} email={result.data as EmailSummary} />;
-            }
-            if (result.type === 'company') {
-              return <CompanyCard key={idx} company={result.data as CompanyInfo} />;
-            }
-            return null;
           })}
         </div>
       )}
