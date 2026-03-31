@@ -5,6 +5,16 @@
   "framework": null,
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/samantha", "destination": "/samantha.html" }
+    { "source": "/samantha", "destination": "/samantha.html" },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "bryanoneillgillis.com" }],
+      "destination": "/samantha.html"
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.bryanoneillgillis.com" }],
+      "destination": "/samantha.html"
+    }
   ]
 }
