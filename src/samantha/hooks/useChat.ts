@@ -168,6 +168,44 @@ async function callToolAPI(toolName: string, toolInput: Record<string, unknown>)
     return { result: JSON.stringify(data), cards };
   }
 
+  // Asana (project management)
+  if (toolName === 'list_projects' || toolName === 'list_tasks' || toolName === 'search_tasks' || toolName === 'create_task') {
+    const res = await fetch(`${API_BASE}/asana`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: toolName, params: toolInput }),
+    });
+    const data = await res.json();
+    return { result: JSON.stringify(data) };
+  }
+
+  // Blog
+  if (toolName === 'list_blog_posts' || toolName === 'read_blog_post' || toolName === 'create_blog_post') {
+    const actionMap: Record<string, string> = {
+      list_blog_posts: 'list_posts',
+      read_blog_post: 'read_post',
+      create_blog_post: 'create_post',
+    };
+    const res = await fetch(`${API_BASE}/blog`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: actionMap[toolName], params: toolInput }),
+    });
+    const data = await res.json();
+    return { result: JSON.stringify(data) };
+  }
+
+  // Invoicing
+  if (toolName === 'create_invoice' || toolName === 'get_pricing') {
+    const res = await fetch(`${API_BASE}/invoice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: toolName, params: toolInput }),
+    });
+    const data = await res.json();
+    return { result: JSON.stringify(data) };
+  }
+
   return { result: JSON.stringify({ error: 'Unknown tool' }) };
 }
 
