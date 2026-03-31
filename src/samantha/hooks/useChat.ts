@@ -168,6 +168,74 @@ async function callToolAPI(toolName: string, toolInput: Record<string, unknown>)
     return { result: JSON.stringify(data), cards };
   }
 
+  // 17-week follow-up chain
+  if (toolName === 'schedule_17_week_followup') {
+    // Step 1: Get the follow-up dates from the engine
+    const followupRes = await fetch(`${API_BASE}/followup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'schedule_17_week_followup', params: toolInput }),
+    });
+    const followupData = await followupRes.json();
+
+    // Step 2: Create each calendar event
+    if (followupData.events) {
+      for (const evt of followupData.events) {
+        await fetch(`${API_BASE}/calendar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'create_calendar_event', params: evt }),
+        });
+      }
+    }
+
+    const cards: ToolResultCard[] = [];
+    if (followupData.events) {
+      for (const evt of followupData.events) {
+        cards.push({
+          type: 'calendar',
+          data: {
+            id: `followup-${Date.now()}`,
+            title: evt.title,
+            start: evt.start,
+            end: evt.end,
+            location: evt.location,
+            description: evt.description,
+          } as CalendarEvent,
+        });
+      }
+    }
+    return { result: JSON.stringify(followupData), cards };
+  }
+
+  // Get upcoming retests
+  if (toolName === 'get_upcoming_retests') {
+    const followupRes = await fetch(`${API_BASE}/followup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_upcoming_retests', params: toolInput }),
+    });
+    const followupData = await followupRes.json();
+
+    // Now search the calendar with those params
+    if (followupData.search_params) {
+      const calRes = await fetch(`${API_BASE}/calendar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get_calendar_events', params: followupData.search_params }),
+      });
+      const calData = await calRes.json();
+      const cards: ToolResultCard[] = [];
+      if (calData.events) {
+        for (const evt of calData.events) {
+          cards.push({ type: 'calendar', data: evt as CalendarEvent });
+        }
+      }
+      return { result: JSON.stringify(calData), cards };
+    }
+    return { result: JSON.stringify(followupData) };
+  }
+
   // Asana (project management)
   if (toolName === 'list_projects' || toolName === 'list_tasks' || toolName === 'search_tasks' || toolName === 'create_task') {
     const res = await fetch(`${API_BASE}/asana`, {

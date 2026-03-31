@@ -22,7 +22,7 @@ export const SAMANTHA_TOOLS = [
   },
   {
     name: 'create_calendar_event',
-    description: "Create an event on Bryan's calendar.",
+    description: "Create an event on Bryan's calendar. For test appointments, ALWAYS also call schedule_17_week_followup to set up the retest chain.",
     input_schema: {
       type: 'object' as const,
       properties: {
@@ -31,8 +31,38 @@ export const SAMANTHA_TOOLS = [
         end: { type: 'string' },
         description: { type: 'string' },
         location: { type: 'string' },
+        recurrence: { type: 'string', description: 'RRULE string for recurring events (e.g., "RRULE:FREQ=WEEKLY;INTERVAL=17;COUNT=4").' },
       },
       required: ['title', 'start', 'end'],
+    },
+  },
+
+  // ===== 17-WEEK FOLLOW-UP =====
+  {
+    name: 'schedule_17_week_followup',
+    description: 'Schedule the 17-week retest follow-up chain for a customer. Creates: (1) a reminder event at 15 weeks, (2) a retest-due event at 17 weeks. This is the most important business logic -- call this EVERY time a test is scheduled or completed.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        customer_name: { type: 'string', description: 'Customer or company name.' },
+        test_date: { type: 'string', description: 'Date the test was/will be performed (ISO 8601).' },
+        customer_phone: { type: 'string', description: 'Customer phone for follow-up.' },
+        service_type: { type: 'string', description: 'hd-obd, smoke-opacity, fleet-opacity, or rv-motorhome.' },
+        location: { type: 'string', description: 'Test location / customer address.' },
+        has_bluetooth_device: { type: 'boolean', description: 'Whether customer has a Bluetooth OBD device.' },
+      },
+      required: ['customer_name', 'test_date'],
+    },
+  },
+  {
+    name: 'get_upcoming_retests',
+    description: 'Check which customers have 17-week retests coming up in the next few weeks. Searches calendar for retest-due events.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        weeks_ahead: { type: 'number', description: 'How many weeks ahead to look. Default 4.' },
+      },
+      required: [],
     },
   },
 

@@ -58,7 +58,7 @@ export default async function handler(req: any, res: any) {
     }
 
     if (action === 'create_calendar_event') {
-      const { title, start, end, description, location } = params;
+      const { title, start, end, description, location, recurrence } = params;
 
       const response = await calendar.events.insert({
         calendarId: 'primary',
@@ -67,6 +67,7 @@ export default async function handler(req: any, res: any) {
           start: { dateTime: start, timeZone: 'America/Los_Angeles' },
           end: { dateTime: end, timeZone: 'America/Los_Angeles' },
           description: description || undefined,
+          recurrence: recurrence ? [recurrence] : undefined,
           location: location || undefined,
         },
       });
