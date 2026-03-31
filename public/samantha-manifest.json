@@ -2,7 +2,7 @@
   "name": "Samantha",
   "short_name": "Samantha",
   "description": "Your personal AI assistant",
-  "start_url": "/samantha",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#FFF8F0",
   "theme_color": "#E8725A",
