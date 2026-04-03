@@ -8,7 +8,12 @@
     { "source": "/samantha", "destination": "/samantha.html" },
     {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "samantha.bryanoneillgillis.com" }],
+      "has": [{ "type": "host", "value": "bryanoneillgillis.com" }],
+      "destination": "/samantha.html"
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.bryanoneillgillis.com" }],
       "destination": "/samantha.html"
     }
   ]
