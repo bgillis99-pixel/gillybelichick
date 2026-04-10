@@ -1,0 +1,319 @@
+
+================================================================================
+                    SAMANTHA - PERSONAL AI COMMAND CENTER
+                         Capability Sheet v1.0
+                         Bryan O'Neill Gillis
+                         NorCal CARB Mobile LLC
+================================================================================
+
+WHAT IS SAMANTHA?
+-----------------
+Samantha is a personal AI assistant that runs on your phone as a web app
+(PWA). She's powered by Claude (Anthropic) and acts as your command center
+-- managing your schedule, email, customers, invoicing, and business
+operations through natural conversation. Voice in, voice out.
+
+Think: Q from James Bond meets a smart friend who knows your entire
+business, your codebase, your customers, and CARB regulations cold.
+
+
+================================================================================
+                         20 TOOLS / CAPABILITIES
+================================================================================
+
+CATEGORY 1: SCHEDULE & CALENDAR
+--------------------------------
+1. get_calendar_events    - Check your schedule for any date range
+2. create_calendar_event  - Book appointments, tests, meetings
+3. schedule_17_week_followup - AUTO-creates the 17-week retest chain
+                              (15-week reminder + 17-week retest due)
+4. get_upcoming_retests   - "Who's due for retesting?" Shows all upcoming
+                              17-week retest events
+
+HOW IT WORKS: "Schedule a smoke test for ABC Trucking next Thursday"
+  -> Creates the appointment
+  -> Creates 15-week reminder
+  -> Creates 17-week retest event
+  -> Asks if you want to text the customer confirmation
+
+
+CATEGORY 2: EMAIL (Gmail)
+--------------------------
+5. search_emails   - Search your inbox ("what did CARB send me?")
+6. read_email      - Read full email content
+7. draft_email     - Compose emails in your voice
+
+HOW IT WORKS: "Check my emails from CARB" -> Shows email cards inline
+              "Draft a response" -> Writes it in your voice, not corporate
+
+
+CATEGORY 3: COMPANY LOOKUP (FMCSA)
+------------------------------------
+8. lookup_company  - Look up any trucking company by name, DOT#, or MC#
+                     Returns: company name, DOT/MC numbers, fleet size,
+                     safety rating, address, phone number
+
+HOW IT WORKS: See a truck on the road? "Look up DOT 1234567"
+              -> Shows company card with fleet size, safety rating, phone
+              -> Potential customer lead
+
+
+CATEGORY 4: MAPS & DIRECTIONS (Google Maps)
+---------------------------------------------
+9.  get_directions - Drive time, distance, turn-by-turn, Google Maps link
+10. find_places    - Find diesel shops, truck stops, parts stores nearby
+
+HOW IT WORKS: "How far is Stockton from here?" -> "45 min, 52 miles"
+              "Find diesel shops near Fresno" -> List with ratings + map links
+
+
+CATEGORY 5: SMS / TEXTING (Google Messages)
+--------------------------------------------
+11. send_sms - Compose a text, tap to send via Google Messages
+
+HOW IT WORKS: "Text that customer to confirm Thursday"
+              -> Shows pre-filled SMS card
+              -> One tap opens Google Messages with message ready to send
+
+
+CATEGORY 6: PROJECT MANAGEMENT (Asana)
+---------------------------------------
+12. list_projects  - See all your Asana projects
+13. list_tasks     - Tasks in a specific project
+14. search_tasks   - Search across all projects
+15. create_task    - Create new tasks with due dates
+
+YOUR PROJECTS:
+  - NorCal CARB Mobile -- Digital Growth Roadmap
+  - NorCal CARB Mobile -- Weekly Cron Jobs
+  - Onboarding automation and subcontracting
+
+
+CATEGORY 7: BLOG (Cloudflare D1 Database)
+------------------------------------------
+16. list_blog_posts   - See all published posts
+17. read_blog_post    - Read a specific post
+18. create_blog_post  - Write and publish new SEO content
+
+CURRENT POSTS:
+  1. "2026 CARB Biannual Testing: What Every Truck Owner Needs to Know"
+  2. "Mobile vs. Shop Emissions Testing: Why Fleet Operators Are Switching"
+  3. "Understanding HD-OBD Testing: A Complete Guide for Truck Owners"
+
+HOW IT WORKS: "Write a blog post about DPF regeneration tips"
+              -> Samantha writes it, publishes to the D1 database
+
+
+CATEGORY 8: INVOICING
+-----------------------
+19. create_invoice - Generate professional invoices with line items
+20. get_pricing    - Current service pricing
+
+PRICING BUILT IN:
+  - HD-OBD Testing:       $75/truck
+  - Smoke/Opacity Testing: $199/truck
+  - Fleet Opacity:         $149+/truck
+  - RV/Motorhome:          $300/vehicle
+
+HOW IT WORKS: "Invoice ABC Trucking for 3 smoke tests"
+              -> Generates invoice NCM-2604-XXXX
+              -> 3x Smoke/Opacity @ $199 = $597
+              -> Bryan's business info, payment terms
+
+
+CATEGORY 9: VOICE
+-------------------
+  - Voice INPUT:  Tap mic button, speak, auto-sends (Web Speech API)
+  - Voice OUTPUT: Samantha speaks responses aloud (Text-to-Speech)
+                  Uses "Samantha" voice on Apple devices
+  - Toggle on/off in header
+
+
+CATEGORY 10: CARB EXPERTISE (Built into personality)
+-----------------------------------------------------
+Samantha knows CARB regulations at expert level:
+  - Clean Truck Check (CTC) program
+  - Heavy-Duty Inspection & Maintenance (HD I/M)
+  - Periodic Smoke Inspection Program (PSIP)
+  - Opacity/Visual Inspection (OVI) procedures
+  - On-Board Diagnostics (OBD) testing
+  - TRUCRS reporting system
+  - VIN compliance, exemptions, deadlines, penalties
+  - Fleet compliance strategies
+
+HOW IT WORKS: "What are the penalties for missing a test?"
+              -> Gives accurate, actionable answer a tester can use
+
+
+================================================================================
+                    THE 17-WEEK RULE (MOST IMPORTANT)
+================================================================================
+
+Every customer test triggers an automatic 17-week follow-up chain:
+
+  Week 0:  Test performed, calendar event created
+  Week 15: Reminder -- "Reach out to [Customer] for retest"
+  Week 17: Event -- "[Customer] RETEST DUE"
+
+This repeats forever. No customer falls through the cracks.
+
+Why it matters:
+  - 2-4 truck operators WILL forget without this
+  - It's the difference between one-time and recurring revenue
+  - Samantha is the reminder engine -- her #1 job
+
+
+================================================================================
+                    BUSINESS CONTEXT (What Samantha Knows)
+================================================================================
+
+  Owner:      Bryan O'Neill Gillis
+  Company:    NorCal CARB Mobile LLC
+  Tester ID:  IF530523
+  Phone:      916-890-4427
+  Email:      bryan@norcalcarbmobile.com
+  Hours:      Mon-Fri 6am-5pm, Sat 8am-4pm
+  Rating:     4.9/5 (47+ reviews)
+  Areas:      Hayward, Stockton, Roseville, Fairfield + all NorCal
+
+  Strategy:   Lead with $75/$199 mobile testing
+              Bluetooth OBD device (~$200 + install) is soft upsell
+              Sweet spot: 1-4 truck owner-operators
+              Expanding statewide
+
+
+================================================================================
+                    TECH STACK (What Samantha Knows)
+================================================================================
+
+  Frontend:   Pure HTML/CSS/JS (no React, no build step)
+  Backend:    Vercel serverless functions (10 API endpoints)
+  AI Brain:   Claude Sonnet (Anthropic API)
+  Calendar:   Google Calendar API
+  Email:      Gmail API
+  Maps:       Google Maps Directions + Places API
+  Companies:  FMCSA QC API
+  Projects:   Asana API
+  Blog:       Cloudflare D1 database
+  SMS:        Google Messages deep links
+  Voice:      Web Speech API (input) + TTS (output)
+
+  City Sites: Cloudflare Workers (Hayward, Stockton, Roseville, Fairfield)
+  Blog DB:    Cloudflare D1 (norcal-blog)
+  KV Stores:  19 namespaces on Cloudflare
+
+
+================================================================================
+              GOOGLE CLOUD / FREE TIER GROWTH PATH
+================================================================================
+
+WHAT'S FREE ON GOOGLE CLOUD (relevant to Samantha):
+
+  Google Maps Platform:     $200/month credit (covers Directions, Places,
+                            Geocoding -- more than enough for daily use)
+
+  Google Calendar API:      Free (part of Google Workspace)
+  Gmail API:                Free (part of Google Workspace)
+
+  Gemini API (AI Studio):   Free tier for Gemini 1.5 Flash
+                            (already powering the VIN site chat)
+
+  Firebase Hosting:         Free tier (10 GB storage, 360 MB/day transfer)
+  Cloud Run:                Free tier (2M requests/month)
+  Cloud Functions:          Free tier (2M invocations/month)
+
+  Vertex AI:                $300 free credits for new accounts
+                            Agent Builder for custom AI agents
+
+MONTHLY GROWTH PLAN:
+
+  Month 1 (NOW):
+    - Get Samantha working on Vercel/Cloudflare
+    - Calendar + email + company lookups live
+    - 17-week engine running
+    - Blog with 3+ posts
+
+  Month 2:
+    - Google Maps fully connected (directions, places)
+    - FMCSA company lookups live
+    - 10+ blog posts (Samantha writes them)
+    - Statewide landing page started
+
+  Month 3:
+    - Bluetooth OBD info page
+    - Customer portal started (test history, certificates)
+    - Asana fully integrated
+    - Invoice generation + email delivery
+
+  Month 4:
+    - Vertex AI Agent Builder -- train Samantha on your specific
+      customer interactions, common questions, your voice
+    - This is the "Magenta training" path -- fine-tuning an AI
+      on your business data so it sounds exactly like you
+
+  Month 5:
+    - Statewide site live
+    - Blog generating organic traffic
+    - Customer portal with Stripe payments
+    - Bluetooth OBD customers onboarding
+
+  Month 6:
+    - Samantha handles first-contact customer inquiries automatically
+    - 17-week engine has full customer database
+    - Revenue from recurring retest cycles visible
+    - Evaluate: move to own domain, scale up
+
+
+================================================================================
+              VERTEX AI / "MAGENTA TRAINING" PATH
+================================================================================
+
+Google's Vertex AI lets you fine-tune AI models on YOUR data:
+
+  What it means:
+    - Feed Samantha your past emails, customer conversations, quotes
+    - She learns YOUR voice, YOUR pricing style, YOUR objection handling
+    - Eventually she can draft customer responses that sound like YOU
+
+  How it works:
+    1. Export your Gmail conversations (already have API access)
+    2. Format as training data (question/answer pairs)
+    3. Fine-tune a model on Vertex AI
+    4. Samantha uses the fine-tuned model for customer-facing responses
+
+  Cost: $300 free credit for new Vertex AI accounts
+        After that, pay-per-training-job (typically $5-50 per fine-tune)
+
+  Timeline: Month 4+ (need enough customer data first)
+
+  What you'd learn:
+    - Vertex AI console and model management
+    - Training data preparation
+    - Evaluation and testing of fine-tuned models
+    - Deploying custom models to production
+
+
+================================================================================
+              QUICK REFERENCE: TALKING TO SAMANTHA
+================================================================================
+
+  "What's on my calendar today?"
+  "Schedule a smoke test for [company] on Thursday at 2"
+  "Check my emails from CARB"
+  "Look up DOT 1234567"
+  "How far is Stockton?"
+  "Find diesel shops near Fresno"
+  "Text [customer] to confirm Thursday"
+  "Who's due for retesting?"
+  "Invoice [company] for 2 HD-OBD tests"
+  "What's the penalty for missing a CARB test?"
+  "Write a blog post about fleet compliance tips"
+  "What are my Asana tasks this week?"
+  "Help me draft a response to that email"
+  "What's our pricing?"
+
+
+================================================================================
+  Samantha v1.0 | Built April 2026 | NorCal CARB Mobile LLC
+  Powered by Claude (Anthropic) | 20 tools | 17-week engine
+================================================================================
