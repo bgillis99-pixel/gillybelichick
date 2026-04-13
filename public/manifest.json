@@ -1,48 +1,18 @@
 {
-  "name": "Mobile Carb Check - Heavy Duty Diesel Compliance",
-  "short_name": "CARB Check",
-  "description": "California's Premier Mobile CARB Compliance App. Instant VIN Checks & Smoke Testing for Heavy Duty Diesel Vehicles",
+  "name": "Samantha",
+  "short_name": "Samantha",
+  "description": "Your personal AI assistant",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#003366",
-  "theme_color": "#003366",
+  "background_color": "#FFF8F0",
+  "theme_color": "#E8725A",
   "orientation": "portrait-primary",
-  "categories": ["business", "productivity", "utilities"],
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshot1.png",
-      "sizes": "540x720",
-      "type": "image/png"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Check VIN",
-      "short_name": "VIN Check",
-      "description": "Quick VIN compliance check",
-      "url": "/",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Call Support",
-      "short_name": "Call",
-      "description": "Call 844-685-8922",
-      "url": "tel:8446858922",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

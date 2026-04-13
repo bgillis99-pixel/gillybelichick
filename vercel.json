@@ -1,20 +1,8 @@
 {
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": null,
-  "outputDirectory": "dist",
+  "outputDirectory": "public",
   "rewrites": [
-    { "source": "/samantha", "destination": "/samantha.html" },
-    {
-      "source": "/(.*)",
-      "has": [{ "type": "host", "value": "bryanoneillgillis.com" }],
-      "destination": "/samantha.html"
-    },
-    {
-      "source": "/(.*)",
-      "has": [{ "type": "host", "value": "www.bryanoneillgillis.com" }],
-      "destination": "/samantha.html"
-    }
+    { "source": "/api/(.*)", "destination": "/api/$1" }
   ]
 }
