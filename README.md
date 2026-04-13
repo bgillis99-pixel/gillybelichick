@@ -1,132 +1,319 @@
-# 🚛 Mobile Carb Check - CARB Compliance App
+# 🤖 Samantha - Personal AI Command Center
 
-**California's Premier Mobile CARB Compliance Application**
-Version: 0.1.0 (Alpha) | Phase: Mobile Web
+**Your AI-powered business assistant for CARB compliance testing**
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/bgillis99-pixel/FINALVINDIESEL)
+Built with Claude (Anthropic) | Deployed on Vercel & Cloudflare | v1.0 (April 2026)
 
-## 📱 Overview
+---
 
-Mobile Carb Check is a Progressive Web App (PWA) for heavy-duty diesel vehicle operators to comply with California Air Resources Board (CARB) regulations.
+## 🚀 Quick Links
 
-**Target Vehicles:**
-- Heavy-Duty Diesel Trucks >14,000 lbs GVWR
-- Diesel Motorhomes and RVs
-- Agricultural Equipment with diesel engines
-- **NO GASOLINE VEHICLES**
+- **Live App**: Coming soon (bryanoneillgillis.com)
+- **Claude Code**: [https://claude.ai/code/session_01Lxe8T75sM7Z35gUqZUS8Yw](https://claude.ai/code/session_01Lxe8T75sM7Z35gUqZUS8Yw)
+- **GitHub**: [bgillis99-pixel/gillybelichick](https://github.com/bgillis99-pixel/gillybelichick)
 
-## ✨ Features
+---
 
-- ✅ **Instant VIN Compliance Checks**
-- 🤖 **AI Chat Assistant** (Google Gemini)
-- 📸 **Media Analysis Tools**
-- 👤 **User Profiles & History**
-- 📱 **PWA Installation**
-- 🌐 **Offline Support**
-- 📞 **Mobile Service**: 844-685-8922
+## 📱 What is Samantha?
 
-## 🚀 Deployment to Vercel
+Samantha is a personal AI assistant that runs as a Progressive Web App (PWA). She acts as your command center for managing schedules, emails, customers, invoicing, and business operations through natural conversation.
 
-### Quick Deploy
+Think: **Q from James Bond meets a smart business partner who knows your entire operation, your codebase, your customers, and CARB regulations cold.**
 
-1. Click "Deploy with Vercel" button above, OR
-2. Go to [vercel.com/new](https://vercel.com/new)
-3. Import: `bgillis99-pixel/FINALVINDIESEL`
-4. Configure:
-   - Framework: **Vite**
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-5. Add Environment Variable: `API_KEY` (Google AI Studio)
-6. Deploy!
+---
 
-### Environment Variables
+## ✨ 20 Core Capabilities
 
-In Vercel dashboard, add:
-- **Key**: `API_KEY`
-- **Value**: Your Google Gemini API key from [ai.google.dev](https://ai.google.dev/)
+### 📅 Category 1: Schedule & Calendar
+1. **get_calendar_events** - Check your schedule for any date range
+2. **create_calendar_event** - Book appointments, tests, meetings
+3. **schedule_17_week_followup** - Auto-creates the 17-week retest chain
+4. **get_upcoming_retests** - Shows all upcoming retest events
 
-### Squarespace Integration
+**Example**: "Schedule a smoke test for ABC Trucking next Thursday"  
+→ Creates the appointment + 15-week reminder + 17-week retest event
 
-#### Full Page Embed
-```html
-<iframe
-  src="https://your-vercel-app.vercel.app"
-  style="width:100%; height:100vh; border:none;"
-  title="Mobile Carb Check"
-></iframe>
+### 📧 Category 2: Email (Gmail)
+5. **search_emails** - Search your inbox by keyword
+6. **read_email** - Read full email content
+7. **draft_email** - Compose emails in your voice
+
+**Example**: "Check my emails from CARB" → Shows email cards inline
+
+### 🏢 Category 3: Company Lookup (FMCSA)
+8. **lookup_company** - Look up trucking companies by name, DOT#, or MC#
+   - Returns: company name, DOT/MC numbers, fleet size, safety rating, address, phone
+
+**Example**: "Look up DOT 1234567" → Shows company card with fleet details
+
+### 🗺️ Category 4: Maps & Directions (Google Maps)
+9. **get_directions** - Drive time, distance, turn-by-turn
+10. **find_places** - Find diesel shops, truck stops, parts stores
+
+**Example**: "How far is Stockton?" → "45 min, 52 miles"
+
+### 💬 Category 5: SMS / Texting (Google Messages)
+11. **send_sms** - Compose and send text messages via Google Messages
+
+**Example**: "Text that customer to confirm Thursday"
+
+### 📊 Category 6: Project Management (Asana)
+12. **list_projects** - See all your Asana projects
+13. **list_tasks** - Tasks in a specific project
+14. **search_tasks** - Search across all projects
+15. **create_task** - Create new tasks with due dates
+
+### 📝 Category 7: Blog (Cloudflare D1 Database)
+16. **list_blog_posts** - See all published posts
+17. **read_blog_post** - Read a specific post
+18. **create_blog_post** - Write and publish new SEO content
+
+**Current Posts**:
+- "2026 CARB Biannual Testing: What Every Truck Owner Needs to Know"
+- "Mobile vs. Shop Emissions Testing: Why Fleet Operators Are Switching"
+- "Understanding HD-OBD Testing: A Complete Guide for Truck Owners"
+
+### 💰 Category 8: Invoicing
+19. **create_invoice** - Generate professional invoices with line items
+20. **get_pricing** - Current service pricing
+
+**Built-in Pricing**:
+- HD-OBD Testing: $75/truck
+- Smoke/Opacity Testing: $199/truck
+- Fleet Opacity: $149+/truck
+- RV/Motorhome: $300/vehicle
+
+### 🎤 Voice Interaction
+- **Voice INPUT**: Tap mic button, speak, auto-sends (Web Speech API)
+- **Voice OUTPUT**: Samantha speaks responses aloud (Text-to-Speech with "Samantha" voice)
+
+---
+
+## 🧠 CARB Expertise (Built-in)
+
+Samantha knows CARB regulations at expert level:
+- Clean Truck Check (CTC) program
+- Heavy-Duty Inspection & Maintenance (HD I/M)
+- Periodic Smoke Inspection Program (PSIP)
+- Opacity/Visual Inspection (OVI) procedures
+- On-Board Diagnostics (OBD) testing
+- TRUCRS reporting system
+- VIN compliance, exemptions, deadlines, penalties
+- Fleet compliance strategies
+
+---
+
+## ⏰ The 17-Week Rule (Most Important)
+
+Every customer test triggers an automatic 17-week follow-up chain:
+
+```
+Week 0:  Test performed, calendar event created
+Week 15: Reminder -- "Reach out to [Customer] for retest"
+Week 17: Event -- "[Customer] RETEST DUE"
 ```
 
-#### Widget Embed
-```html
-<div style="max-width: 600px; margin: 0 auto;">
-  <iframe
-    src="https://your-vercel-app.vercel.app"
-    style="width:100%; height:800px; border:2px solid #003366; border-radius:12px;"
-  ></iframe>
-</div>
-```
+This repeats forever. **No customer falls through the cracks.**
 
-## 🛠️ Local Development
+Why it matters:
+- 2-4 truck operators WILL forget without automated reminders
+- It's the difference between one-time and recurring revenue
+- Samantha is the reminder engine — her #1 job
+
+---
+
+## 💼 Business Context
+
+**Owner**: Bryan O'Neill Gillis  
+**Company**: NorCal CARB Mobile LLC  
+**Tester ID**: IF530523  
+**Phone**: 916-890-4427  
+**Email**: bryan@norcalcarbmobile.com  
+**Hours**: Mon-Fri 6am-5pm, Sat 8am-4pm  
+**Rating**: 4.9/5 (47+ reviews)  
+**Service Areas**: Hayward, Stockton, Roseville, Fairfield + all NorCal  
+
+**Strategy**: 
+- Lead with $75/$199 mobile testing
+- Bluetooth OBD device (~$200 + install) is soft upsell
+- Target: 1-4 truck owner-operators
+- Expanding statewide
+
+---
+
+## 🛠️ Tech Stack
+
+| Component | Technology |
+|-----------|-----------|
+| **Frontend** | Pure HTML/CSS/JS (no React, no build step) |
+| **Backend** | Vercel serverless functions (10 API endpoints) |
+| **AI Brain** | Claude Sonnet (Anthropic API) |
+| **Calendar** | Google Calendar API |
+| **Email** | Gmail API |
+| **Maps** | Google Maps Directions + Places API |
+| **Companies** | FMCSA QC API |
+| **Projects** | Asana API |
+| **Blog** | Cloudflare D1 database |
+| **SMS** | Google Messages deep links |
+| **Voice** | Web Speech API (input) + TTS (output) |
+| **Infrastructure** | Cloudflare Workers + D1 + KV (19 namespaces) |
+
+---
+
+## 📦 Local Development
 
 ```bash
-git clone https://github.com/bgillis99-pixel/FINALVINDIESEL.git
-cd FINALVINDIESEL
+# Clone the repository
+git clone https://github.com/bgillis99-pixel/gillybelichick.git
+cd gillybelichick
+
+# Install dependencies
 npm install
-cp .env.example .env  # Add your API_KEY
+
+# Configure environment variables
+cp .env.example .env
+# Add your API keys:
+# - ANTHROPIC_API_KEY (Claude)
+# - GOOGLE_CALENDAR_API_KEY
+# - GMAIL_API_KEY
+# - GOOGLE_MAPS_API_KEY
+# - ASANA_API_KEY
+# - etc.
+
+# Start development server
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
 
-## 📂 Project Structure
+---
 
-```
-FINALVINDIESEL/
-├── src/
-│   ├── components/
-│   │   ├── VinChecker.tsx
-│   │   ├── ChatAssistant.tsx
-│   │   ├── MediaTools.tsx
-│   │   ├── ProfileView.tsx
-│   │   └── AdminView.tsx
-│   ├── types.ts
-│   └── App.tsx
-├── public/manifest.json
-├── index.html
-├── vite.config.ts
-└── package.json
+## 🚀 Deployment
+
+### Deploy to Vercel
+
+```bash
+# Push to GitHub
+git push origin main
+
+# Connect to Vercel
+vercel
 ```
 
-## 🔑 Tech Stack
+### Environment Variables (Vercel)
 
-- **Framework**: Vite + React 18
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **AI**: Google Gemini API
-- **Deployment**: Vercel
+Add these to your Vercel dashboard:
+- `ANTHROPIC_API_KEY` - Claude API key
+- `GOOGLE_CALENDAR_API_KEY` - Google Calendar
+- `GMAIL_API_KEY` - Gmail
+- `GOOGLE_MAPS_API_KEY` - Google Maps
+- `ASANA_API_KEY` - Asana
+- `FMCSA_API_KEY` - FMCSA lookup
 
-## 📱 PWA Features
+---
 
-- Installable on all platforms
-- Offline-capable
-- Push notifications (coming soon)
-- Share Target support
+## 📈 Growth Roadmap
 
-## 📞 Contact & Support
+### Month 1 (Now - April 2026)
+- ✅ Samantha working on Vercel/Cloudflare
+- ✅ Calendar + email + company lookups live
+- ✅ 17-week engine running
+- ✅ Blog with 3+ posts
 
-- **Phone**: 844-685-8922
-- **Email**: info@carbcleantruckcheck.app
-- **Website**: https://carbcleantruckcheck.app
-- **Service**: All of California
+### Month 2 (May 2026)
+- Google Maps fully connected
+- FMCSA company lookups live
+- 10+ blog posts (Samantha writes them)
+- Statewide landing page started
 
-## 📈 Roadmap
+### Month 3 (June 2026)
+- Bluetooth OBD info page
+- Customer portal started
+- Asana fully integrated
+- Invoice generation + email delivery
 
-- ✅ Phase 1: Mobile Web (Current)
-- 🔄 Phase 2: Enhanced Features (Q1 2026)
-- 🔄 Phase 3: Native Apps (Q2 2026)
+### Month 4 (July 2026)
+- Vertex AI Agent Builder integration
+- Fine-tune Samantha on your business data
+- Custom voice/style training
+
+### Month 5 (August 2026)
+- Statewide site live
+- Blog generating organic traffic
+- Customer portal with Stripe payments
+- Bluetooth OBD customer onboarding
+
+### Month 6 (September 2026)
+- Samantha handles first-contact customer inquiries
+- 17-week engine has full customer database
+- Recurring revenue from retest cycles visible
+- Evaluate: own domain, scale up
+
+---
+
+## 🤖 Sample Conversations with Samantha
+
+```
+"What's on my calendar today?"
+"Schedule a smoke test for [company] on Thursday at 2"
+"Check my emails from CARB"
+"Look up DOT 1234567"
+"How far is Stockton?"
+"Find diesel shops near Fresno"
+"Text [customer] to confirm Thursday"
+"Who's due for retesting?"
+"Invoice [company] for 2 HD-OBD tests"
+"What's the penalty for missing a CARB test?"
+"Write a blog post about fleet compliance tips"
+"What are my Asana tasks this week?"
+"Help me draft a response to that email"
+"What's our pricing?"
+```
+
+---
+
+## 📄 Project Structure
+
+```
+gillybelichick/
+├── samantha.html           # Main Samantha app (PWA)
+├── index.html              # Public-facing landing page
+├── marketing.html          # Marketing site
+├── api/                    # Vercel API functions
+├── public/                 # Static assets
+├── SAMANTHA-CAPABILITIES.txt  # Detailed capability sheet
+├── docs/                   # Documentation
+├── src/                    # Source files
+├── package.json            # Dependencies
+├── vite.config.ts          # Build config
+└── vercel.json             # Vercel deployment config
+```
+
+---
+
+## 📚 Documentation
+
+- **Full Capabilities**: See `SAMANTHA-CAPABILITIES.txt`
+- **API Docs**: See `api/` directory
+- **Development Guide**: See `docs/README.md`
+
+---
+
+## 🔗 Useful Links
+
+- **Live App**: [bryanoneillgillis.com](https://bryanoneillgillis.com) (coming soon)
+- **Claude Code Session**: [claude.ai/code/session_01Lxe8T75sM7Z35gUqZUS8Yw](https://claude.ai/code/session_01Lxe8T75sM7Z35gUqZUS8Yw)
+- **GitHub**: [github.com/bgillis99-pixel/gillybelichick](https://github.com/bgillis99-pixel/gillybelichick)
+- **Contact**: bryan@norcalcarbmobile.com | 916-890-4427
+
+---
 
 ## 📄 License
 
-MIT License © 2025 Mobile Carb Check
+MIT License © 2026 NorCal CARB Mobile LLC
 
-**Built with React + Vite + Tailwind + Google Gemini**
+**Built with HTML/CSS/JS + Vercel + Cloudflare + Claude Sonnet**
+
+---
+
+**Version**: 1.0 | **Built**: April 2026 | **Last Updated**: April 13, 2026
