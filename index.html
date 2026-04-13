@@ -3,101 +3,467 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#003366">
-
-  <!-- Favicons -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="apple-touch-icon" href="/favicon.svg">
+  <meta name="theme-color" content="#E8725A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="manifest" href="/manifest.json">
-
-  <title>Mobile Carb Check</title>
-
-  <meta name="description" content="California's Premier Mobile CARB Compliance App. Instant VIN Checks & Smoke Testing. Heavy Duty Diesel >14k lbs, Motorhomes, Ag Equip Only. NO GASOLINE CARS.">
-  <meta name="keywords" content="CARB Compliance, Clean Truck Check, Heavy Duty Diesel, Smoke Test, VIN Check, PSIP, OVI Test, OBD Testing, California Trucking, No Gasoline, Diesel Only, Sacramento, Los Angeles, San Diego, Fresno, Bakersfield, Oakland, Redding, Mobile Diesel Mechanic">
-
-  <meta property="og:title" content="Mobile Carb Check">
-  <meta property="og:description" content="Pocket CARB Assistant. Check VIN Compliance instantly. Request Mobile Smoke/OBD Testing anywhere in California.">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://carbcleantruckcheck.app/favicon.svg">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:image" content="https://carbcleantruckcheck.app/favicon.svg">
-
-  <link rel="canonical" href="https://carbcleantruckcheck.app" />
-
-  <!-- Tailwind CSS via CDN for simplicity in this setup -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
+  <title>Samantha</title>
   <style>
     :root {
-      --green: #00C853;
-      --navy: #003366;
+      --cream: #FFF8F0; --coral: #E8725A; --amber: #F4A261;
+      --text: #2D2D2D; --muted: #8B8B8B;
     }
-    body {
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      background-color: #f8f9fa;
-      color: #003366;
-    }
-    /* Custom scrollbar for Webkit */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: var(--green);
-      border-radius: 3px;
-    }
-  </style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; background: var(--cream); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased; }
+    #app { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
 
-  <!-- Google Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "SoftwareApplication",
-        "name": "Mobile Carb Check",
-        "operatingSystem": "iOS, Android, Web",
-        "applicationCategory": "BusinessApplication",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "description": "Mobile application for checking CARB compliance status (VIN, TRUCRS) and locating certified smoke testers in California."
-      },
-      {
-        "@type": "ProfessionalService",
-        "name": "Mobile Carb Check",
-        "telephone": "844-685-8922",
-        "email": "info@carbcleantruckcheck.app",
-        "url": "https://carbcleantruckcheck.app",
-        "areaServed": {
-          "@type": "State",
-          "name": "California"
-        }
-      }
-    ]
-  }
-  </script>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "vite": "https://aistudiocdn.com/vite@^7.2.4",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
-    "path": "https://aistudiocdn.com/path@^0.12.7"
-  }
-}
-</script>
+    /* Header */
+    .header { display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      background: rgba(255,255,255,.8); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(232,114,90,.1); position: sticky; top: 0; z-index: 10; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--coral), var(--amber));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(232,114,90,.3); position: relative; }
+    .avatar span { color: #fff; font-size: 18px; font-weight: 300; }
+    .avatar .dot { position: absolute; bottom: -1px; right: -1px; width: 12px; height: 12px;
+      border-radius: 50%; background: #4ade80; border: 2px solid #fff; }
+    .header-info { flex: 1; }
+    .header-info h1 { font-size: 16px; font-weight: 600; }
+    .header-info p { font-size: 11px; color: var(--muted); }
+    .header-btn { width: 32px; height: 32px; border-radius: 50%; border: none;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: background .2s; }
+    .voice-btn { background: #f3f4f6; color: var(--muted); }
+    .voice-btn.on { background: rgba(232,114,90,.1); color: var(--coral); }
+    .menu-btn { background: #f3f4f6; color: var(--muted); }
+
+    /* Welcome */
+    .welcome { flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 24px; text-align: center; }
+    .welcome-avatar { width: 96px; height: 96px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--coral), var(--amber), #fb923c);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 32px rgba(232,114,90,.3); margin-bottom: 24px; position: relative; }
+    .welcome-avatar span { color: #fff; font-size: 40px; font-weight: 200; }
+    .welcome-avatar::after { content: ''; position: absolute; inset: 0; border-radius: 50%;
+      border: 2px solid rgba(232,114,90,.3); animation: ping 3s ease-in-out infinite; }
+    @keyframes ping { 0%,100% { transform: scale(1); opacity: .3; } 50% { transform: scale(1.15); opacity: 0; } }
+    .welcome h2 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+    .welcome .subtitle { color: var(--coral); font-size: 14px; font-weight: 500; margin-bottom: 12px; }
+    .welcome p { color: var(--muted); font-size: 14px; line-height: 1.5; max-width: 320px; }
+
+    /* Quick actions */
+    .quick-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+      margin-top: 24px; max-width: 440px; }
+    .quick-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+      border-radius: 999px; background: #fff; border: 1px solid #f3f4f6;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05); font-size: 14px; color: var(--text);
+      cursor: pointer; transition: all .2s; white-space: nowrap; }
+    .quick-btn:hover { border-color: rgba(232,114,90,.3); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .quick-btn:active { transform: scale(.95); }
+
+    /* Chat */
+    .chat { flex: 1; overflow-y: auto; padding: 16px; }
+    .chat::-webkit-scrollbar { display: none; }
+    .messages { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    .msg { display: flex; flex-direction: column; animation: slideUp .3s ease-out; }
+    .msg.user { align-items: flex-end; }
+    .msg.sam { align-items: flex-start; }
+    .bubble { max-width: 85%; border-radius: 16px; padding: 10px 16px; font-size: 15px; line-height: 1.5; }
+    .msg.user .bubble { background: linear-gradient(135deg, var(--coral), var(--amber));
+      color: #fff; border-bottom-right-radius: 6px; }
+    .msg.sam .bubble { background: #fff; color: var(--text); border: 1px solid #f3f4f6;
+      border-bottom-left-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+    .msg-time { font-size: 11px; color: var(--muted); margin-top: 4px; padding: 0 4px; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Tool result cards */
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04); margin-top: 8px; max-width: 85%; animation: slideUp .3s ease-out; }
+    .card-bar { height: 3px; }
+    .card-body { padding: 12px; display: flex; gap: 12px; }
+    .card-icon { width: 40px; height: 40px; border-radius: 8px; display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+    .card-content { flex: 1; min-width: 0; }
+    .card-title { font-size: 14px; font-weight: 600; }
+    .card-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .card-link { font-size: 12px; color: var(--coral); text-decoration: none; font-weight: 500; margin-top: 6px; display: inline-block; }
+    .card-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+
+    /* Typing */
+    .typing { display: flex; align-items: center; gap: 6px; padding: 12px 16px;
+      background: #fff; border-radius: 16px; border-bottom-left-radius: 6px;
+      border: 1px solid #f3f4f6; width: fit-content; }
+    .typing-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--coral);
+      animation: breathe 1.5s ease-in-out infinite; }
+    .typing-dot:nth-child(2) { animation-delay: .2s; }
+    .typing-dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes breathe { 0%,100% { opacity: .3; transform: scale(.85); } 50% { opacity: 1; transform: scale(1); } }
+
+    /* Input */
+    .input-bar { border-top: 1px solid #f3f4f6; background: rgba(255,255,255,.9);
+      backdrop-filter: blur(10px); padding: 8px 16px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+    .input-row { max-width: 600px; margin: 0 auto; display: flex; align-items: flex-end; gap: 8px; }
+    .mic-btn { width: 40px; height: 40px; border-radius: 50%; border: none;
+      background: #f3f4f6; color: var(--muted); cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .mic-btn.listening { background: #ef4444; color: #fff; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.4); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }
+    .input-field { flex: 1; resize: none; border: 1px solid #e5e7eb; border-radius: 20px;
+      padding: 10px 16px; font-size: 15px; background: rgba(255,248,240,.5);
+      color: var(--text); outline: none; font-family: inherit; max-height: 120px; }
+    .input-field:focus { border-color: rgba(232,114,90,.4); box-shadow: 0 0 0 2px rgba(232,114,90,.1); }
+    .input-field::placeholder { color: rgba(139,139,139,.6); }
+    .send-btn { width: 40px; height: 40px; border-radius: 50%; border: none;
+      background: linear-gradient(135deg, var(--coral), var(--amber));
+      color: #fff; cursor: pointer; flex-shrink: 0; display: flex;
+      align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(232,114,90,.3);
+      transition: all .2s; }
+    .send-btn:disabled { opacity: .4; box-shadow: none; }
+    .send-btn:active { transform: scale(.95); }
+  </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
+<div id="app">
+  <div class="header">
+    <div class="avatar"><span>S</span><div class="dot"></div></div>
+    <div class="header-info"><h1>Samantha</h1><p>command center active</p></div>
+    <button class="header-btn voice-btn" id="voiceToggle" title="Toggle voice output">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+    </button>
+    <button class="header-btn menu-btn" id="menuBtn" title="Menu">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
+    </button>
+  </div>
+
+  <div id="welcome" class="welcome">
+    <div class="welcome-avatar"><span>S</span></div>
+    <h2>Command Center</h2>
+    <p class="subtitle">Samantha is online</p>
+    <p>Calendar, email, directions, company lookups, texts, invoicing, CARB rules -- I've got it all. What's the mission?</p>
+    <div class="quick-actions" id="quickActions"></div>
+  </div>
+
+  <div id="chatArea" class="chat" style="display:none">
+    <div class="messages" id="messages"></div>
+  </div>
+
+  <div class="input-bar">
+    <div class="input-row">
+      <button class="mic-btn" id="micBtn" title="Voice input">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+      </button>
+      <textarea class="input-field" id="input" rows="1" placeholder="Message Samantha..."></textarea>
+      <button class="send-btn" id="sendBtn" disabled>
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V5m0 0l-7 7m7-7l7 7"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api/samantha';
+const STORAGE_KEY = 'samantha_messages';
+const quickActions = [
+  ["What's on my calendar today?", "📅"], ["Check my latest emails", "📧"],
+  ["Look up a truck company", "🚛"], ["Directions to my next job", "🗺️"],
+  ["Find diesel shops near me", "🔧"], ["Text a customer", "💬"],
+  ["Help me draft an invoice", "💰"], ["CARB compliance question", "📋"],
+];
+
+let messages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let isLoading = false;
+let voiceEnabled = localStorage.getItem('samantha_voice') === 'true';
+let recognition = null;
+
+// DOM
+const $ = s => document.querySelector(s);
+const welcomeEl = $('#welcome'), chatEl = $('#chatArea'), msgsEl = $('#messages');
+const inputEl = $('#input'), sendEl = $('#sendBtn'), micEl = $('#micBtn');
+const voiceEl = $('#voiceToggle'), menuEl = $('#menuBtn');
+
+// Init quick actions
+const qaEl = $('#quickActions');
+quickActions.forEach(([label, icon]) => {
+  const btn = document.createElement('button');
+  btn.className = 'quick-btn';
+  btn.innerHTML = `<span>${icon}</span><span>${label}</span>`;
+  btn.onclick = () => sendMessage(label);
+  qaEl.appendChild(btn);
+});
+
+// Voice toggle
+voiceEl.className = 'header-btn voice-btn' + (voiceEnabled ? ' on' : '');
+voiceEl.onclick = () => {
+  voiceEnabled = !voiceEnabled;
+  localStorage.setItem('samantha_voice', voiceEnabled);
+  voiceEl.className = 'header-btn voice-btn' + (voiceEnabled ? ' on' : '');
+};
+
+// Menu
+menuEl.onclick = () => {
+  if (confirm('Clear conversation?')) {
+    messages = []; localStorage.removeItem(STORAGE_KEY);
+    msgsEl.innerHTML = '';
+    welcomeEl.style.display = 'flex'; chatEl.style.display = 'none';
+  }
+};
+
+// Input handling
+inputEl.oninput = () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+  sendEl.disabled = !inputEl.value.trim() || isLoading;
+};
+inputEl.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(inputEl.value); } };
+sendEl.onclick = () => sendMessage(inputEl.value);
+
+// Mic
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (!SpeechRec) micEl.style.display = 'none';
+micEl.onclick = () => {
+  if (micEl.classList.contains('listening')) {
+    recognition?.stop(); micEl.classList.remove('listening'); return;
+  }
+  recognition = new SpeechRec();
+  recognition.continuous = false; recognition.interimResults = true; recognition.lang = 'en-US';
+  recognition.onresult = e => {
+    let t = ''; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+    inputEl.value = t; inputEl.oninput();
+    if (e.results[e.results.length-1].isFinal && t.trim()) {
+      setTimeout(() => { sendMessage(t.trim()); micEl.classList.remove('listening'); }, 300);
+    }
+  };
+  recognition.onend = () => micEl.classList.remove('listening');
+  recognition.onerror = () => micEl.classList.remove('listening');
+  recognition.start(); micEl.classList.add('listening');
+};
+
+// TTS
+function speak(text) {
+  if (!voiceEnabled || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const voices = speechSynthesis.getVoices();
+  const v = voices.find(v => v.name.includes('Samantha') || v.name.includes('Karen'))
+    || voices.find(v => v.lang.startsWith('en-'));
+  if (v) u.voice = v;
+  u.rate = 0.95; u.pitch = 1.05;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+
+// Render
+function renderMessages() {
+  if (messages.length === 0) {
+    welcomeEl.style.display = 'flex'; chatEl.style.display = 'none'; return;
+  }
+  welcomeEl.style.display = 'none'; chatEl.style.display = 'block';
+  msgsEl.innerHTML = messages.map(m => {
+    const time = new Date(m.timestamp).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+    let cards = '';
+    if (m.toolResults) cards = m.toolResults.map(renderCard).join('');
+    return `<div class="msg ${m.role === 'user' ? 'user' : 'sam'}">
+      <div class="bubble">${esc(m.content)}</div>${cards}
+      <div class="msg-time">${time}</div></div>`;
+  }).join('');
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function renderCard(r) {
+  if (r.type === 'calendar') {
+    const d = r.data, t = new Date(d.start).toLocaleString([], {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    return `<div class="card"><div class="card-bar" style="background:linear-gradient(90deg,var(--coral),var(--amber))"></div>
+      <div class="card-body"><div class="card-icon" style="background:rgba(232,114,90,.1)">📅</div>
+      <div class="card-content"><div class="card-title">${esc(d.title)}</div>
+      <div class="card-detail">${t}</div>${d.location?`<div class="card-detail">📍 ${esc(d.location)}</div>`:''}</div></div></div>`;
+  }
+  if (r.type === 'email') {
+    const d = r.data;
+    return `<div class="card"><div class="card-bar" style="background:linear-gradient(90deg,var(--amber),#fbbf24)"></div>
+      <div class="card-body"><div class="card-icon" style="background:rgba(244,162,97,.1)">📧</div>
+      <div class="card-content"><div class="card-title">${esc(d.from)}</div>
+      <div class="card-detail" style="font-weight:500">${esc(d.subject)}</div>
+      <div class="card-detail">${esc(d.snippet||'')}</div></div></div></div>`;
+  }
+  if (r.type === 'company') {
+    const d = r.data;
+    return `<div class="card"><div class="card-bar" style="background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div>
+      <div class="card-body"><div class="card-icon" style="background:rgba(59,130,246,.1)">🚛</div>
+      <div class="card-content"><div class="card-title">${esc(d.name)}</div>
+      ${d.dotNumber?`<div class="card-detail">DOT# ${d.dotNumber}</div>`:''}
+      ${d.vehicles?`<div class="card-detail">${d.vehicles} vehicles</div>`:''}
+      ${d.safetyRating?`<div class="card-detail"><span class="card-badge" style="background:${d.safetyRating==='Satisfactory'?'#dcfce7;color:#15803d':'#fef9c3;color:#a16207'}">${d.safetyRating}</span></div>`:''}
+      ${d.phone?`<a href="tel:${d.phone}" class="card-link">📞 ${d.phone}</a>`:''}</div></div></div>`;
+  }
+  if (r.type === 'directions') {
+    const d = r.data;
+    return `<div class="card"><div class="card-bar" style="background:linear-gradient(90deg,#4ade80,#22c55e)"></div>
+      <div class="card-body"><div class="card-icon" style="background:rgba(34,197,94,.1)">🗺️</div>
+      <div class="card-content"><div class="card-title">${d.distance} · ${d.duration}</div>
+      <div class="card-detail">To: ${esc(d.destination)}</div>
+      ${d.mapUrl?`<a href="${d.mapUrl}" target="_blank" class="card-link">Open in Maps ↗</a>`:''}</div></div></div>`;
+  }
+  if (r.type === 'sms') {
+    const d = r.data, link = `sms:${d.to.replace(/[^\d+]/g,'')}?body=${encodeURIComponent(d.body)}`;
+    return `<div class="card"><div class="card-bar" style="background:linear-gradient(90deg,#2dd4bf,#06b6d4)"></div>
+      <div class="card-body"><div class="card-icon" style="background:rgba(6,182,212,.1)">💬</div>
+      <div class="card-content"><div class="card-title">To: ${esc(d.to)}</div>
+      <div class="card-detail">${esc(d.body)}</div>
+      <a href="${link}" class="card-link" style="background:var(--coral);color:#fff;padding:6px 14px;border-radius:8px;display:inline-block;margin-top:8px">Send via Messages</a></div></div></div>`;
+  }
+  if (r.type === 'places') {
+    const d = r.data;
+    return `<div class="card"><div class="card-bar" style="background:linear-gradient(90deg,#a78bfa,#7c3aed)"></div>
+      <div class="card-body"><div class="card-icon" style="background:rgba(124,58,237,.1)">📍</div>
+      <div class="card-content"><div class="card-title">${esc(d.name)}</div>
+      <div class="card-detail">${esc(d.address)}</div>
+      ${d.rating?`<div class="card-detail" style="color:var(--amber)">${'★'.repeat(Math.round(d.rating))} ${d.rating}</div>`:''}
+      ${d.mapUrl?`<a href="${d.mapUrl}" target="_blank" class="card-link">View on map ↗</a>`:''}</div></div></div>`;
+  }
+  return '';
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+// Send
+async function sendMessage(text) {
+  text = text.trim(); if (!text || isLoading) return;
+  inputEl.value = ''; inputEl.style.height = 'auto'; sendEl.disabled = true;
+
+  const userMsg = { id: 'u'+Date.now(), role: 'user', content: text, timestamp: Date.now() };
+  messages.push(userMsg);
+  save(); renderMessages();
+
+  // Show typing
+  isLoading = true;
+  const typingEl = document.createElement('div');
+  typingEl.className = 'msg sam';
+  typingEl.innerHTML = '<div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  msgsEl.appendChild(typingEl);
+  chatEl.scrollTop = chatEl.scrollHeight;
+
+  try {
+    const history = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
+    let resp = await callChat(history);
+    let allCards = [];
+
+    // Tool use loop
+    let rounds = 0;
+    while (resp.tool_calls && resp.tool_calls.length > 0 && rounds < 5) {
+      rounds++;
+      const results = [];
+      for (const tc of resp.tool_calls) {
+        const { result, cards } = await callTool(tc.name, tc.input);
+        if (cards) allCards.push(...cards);
+        results.push({ tool_use_id: tc.id, content: result });
+      }
+      resp = await callChat([...history,
+        { role: 'assistant', content: resp.raw_content },
+        { role: 'user', content: JSON.stringify(results) }
+      ]);
+    }
+
+    const samMsg = {
+      id: 's'+Date.now(), role: 'assistant',
+      content: resp.text || "Hmm, couldn't process that. Try again?",
+      timestamp: Date.now(),
+      toolResults: allCards.length > 0 ? allCards : undefined
+    };
+    messages.push(samMsg); save();
+    if (voiceEnabled) speak(samMsg.content);
+  } catch (e) {
+    messages.push({ id: 'e'+Date.now(), role: 'assistant',
+      content: e.message?.includes('API error')
+        ? "Having trouble connecting. Check your signal."
+        : "Something went sideways. Give me a sec.",
+      timestamp: Date.now() });
+    save();
+  } finally {
+    isLoading = false;
+    typingEl.remove();
+    renderMessages();
+  }
+}
+
+async function callChat(msgs) {
+  const r = await fetch(API+'/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({messages:msgs}) });
+  if (!r.ok) throw new Error('API error: '+r.status);
+  return r.json();
+}
+
+async function callTool(name, input) {
+  if (name === 'get_current_datetime') {
+    const now = new Date();
+    return { result: JSON.stringify({ date: now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}), time: now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }) };
+  }
+
+  const routeMap = {
+    get_calendar_events: ['calendar',{action:'get_calendar_events'}],
+    create_calendar_event: ['calendar',{action:'create_calendar_event'}],
+    search_emails: ['email',{action:'search_emails'}],
+    read_email: ['email',{action:'read_email'}],
+    draft_email: ['email',{action:'draft_email'}],
+    lookup_company: ['company',{}],
+    get_directions: ['maps',{action:'get_directions'}],
+    find_places: ['maps',{action:'find_places'}],
+    send_sms: ['sms',{action:'send_sms'}],
+    schedule_17_week_followup: ['followup',{action:'schedule_17_week_followup'}],
+    get_upcoming_retests: ['followup',{action:'get_upcoming_retests'}],
+    list_projects: ['asana',{action:'list_projects'}],
+    list_tasks: ['asana',{action:'list_tasks'}],
+    search_tasks: ['asana',{action:'search_tasks'}],
+    create_task: ['asana',{action:'create_task'}],
+    list_blog_posts: ['blog',{action:'list_posts'}],
+    read_blog_post: ['blog',{action:'read_post'}],
+    create_blog_post: ['blog',{action:'create_post'}],
+    create_invoice: ['invoice',{action:'create_invoice'}],
+    get_pricing: ['invoice',{action:'get_pricing'}],
+  };
+
+  const route = routeMap[name];
+  if (!route) return { result: JSON.stringify({error:'Unknown tool'}) };
+
+  const [endpoint, extra] = route;
+  const body = endpoint === 'company' ? { params: input } : { ...extra, params: input };
+  const r = await fetch(`${API}/${endpoint}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const data = await r.json();
+
+  // Build cards
+  const cards = [];
+  if (name === 'get_calendar_events' && data.events) data.events.forEach(e => cards.push({type:'calendar',data:e}));
+  if (name === 'create_calendar_event' && data.event) cards.push({type:'calendar',data:data.event});
+  if (name === 'search_emails' && data.emails) data.emails.forEach(e => cards.push({type:'email',data:e}));
+  if (name === 'lookup_company' && data.company) cards.push({type:'company',data:data.company});
+  if (name === 'get_directions' && data.origin) cards.push({type:'directions',data:data});
+  if (name === 'find_places' && data.places) data.places.forEach(p => cards.push({type:'places',data:p}));
+  if (name === 'send_sms') cards.push({type:'sms',data:{to:input.to,body:input.body,status:data.status||'ready'}});
+  if (name === 'schedule_17_week_followup' && data.events) data.events.forEach(e => cards.push({type:'calendar',data:{id:'f'+Date.now(),title:e.title,start:e.start,end:e.end,location:e.location}}));
+
+  // For 17-week followup, also create the calendar events
+  if (name === 'schedule_17_week_followup' && data.events) {
+    for (const evt of data.events) {
+      await fetch(`${API}/calendar`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'create_calendar_event',params:evt}) });
+    }
+  }
+  if (name === 'get_upcoming_retests' && data.search_params) {
+    const cal = await (await fetch(`${API}/calendar`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'get_calendar_events',params:data.search_params}) })).json();
+    if (cal.events) cal.events.forEach(e => cards.push({type:'calendar',data:e}));
+    return { result: JSON.stringify(cal), cards };
+  }
+
+  return { result: JSON.stringify(data), cards: cards.length ? cards : undefined };
+}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-100))); } catch(e) { localStorage.removeItem(STORAGE_KEY); }
+}
+
+// Boot
+renderMessages();
+</script>
 </body>
 </html>
