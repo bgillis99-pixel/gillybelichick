@@ -1,61 +1,51 @@
 
 ================================================================================
                     SAMANTHA - PERSONAL AI COMMAND CENTER
-                         Capability Sheet v1.0
+                         Capability Sheet v1.1
                          Bryan O'Neill Gillis
                          NorCal CARB Mobile LLC
+                         Updated: April 2026
 ================================================================================
 
 WHAT IS SAMANTHA?
 -----------------
-Samantha is a personal AI assistant that runs on your phone as a web app
-(PWA). She's powered by Claude (Anthropic) and acts as your command center
--- managing your schedule, email, customers, invoicing, and business
-operations through natural conversation. Voice in, voice out.
+Samantha is Bryan's personal AI command center -- a web app (PWA) that
+installs to his phone home screen. She's powered by Claude (Anthropic's
+Sonnet model), visualized as a warm blonde businesswoman sitting across
+from him at a conference table, and acts as his whole operations brain:
+schedule, email, customers, invoicing, compliance, projects, and a live
+to-do chalkboard.
 
 Think: Q from James Bond meets a smart friend who knows your entire
-business, your codebase, your customers, and CARB regulations cold.
+business, your codebase, your customers, CARB regulations, and your
+workload -- and she reads YOU as much as you read her.
+
+Voice in, voice out. Tap-to-answer options. Visual state signals.
 
 
 ================================================================================
-                         20 TOOLS / CAPABILITIES
+                    25 TOOLS / CAPABILITIES (up from 20)
 ================================================================================
 
 CATEGORY 1: SCHEDULE & CALENDAR
 --------------------------------
-1. get_calendar_events    - Check your schedule for any date range
-2. create_calendar_event  - Book appointments, tests, meetings
+1. get_calendar_events       - Check your schedule for any date range
+2. create_calendar_event     - Book appointments, tests, meetings
 3. schedule_17_week_followup - AUTO-creates the 17-week retest chain
-                              (15-week reminder + 17-week retest due)
-4. get_upcoming_retests   - "Who's due for retesting?" Shows all upcoming
-                              17-week retest events
-
-HOW IT WORKS: "Schedule a smoke test for ABC Trucking next Thursday"
-  -> Creates the appointment
-  -> Creates 15-week reminder
-  -> Creates 17-week retest event
-  -> Asks if you want to text the customer confirmation
+                               (15-week reminder + 17-week retest due)
+4. get_upcoming_retests      - "Who's due for retesting?"
 
 
 CATEGORY 2: EMAIL (Gmail)
 --------------------------
-5. search_emails   - Search your inbox ("what did CARB send me?")
+5. search_emails   - Search your inbox
 6. read_email      - Read full email content
 7. draft_email     - Compose emails in your voice
 
-HOW IT WORKS: "Check my emails from CARB" -> Shows email cards inline
-              "Draft a response" -> Writes it in your voice, not corporate
-
 
 CATEGORY 3: COMPANY LOOKUP (FMCSA)
-------------------------------------
+-----------------------------------
 8. lookup_company  - Look up any trucking company by name, DOT#, or MC#
-                     Returns: company name, DOT/MC numbers, fleet size,
-                     safety rating, address, phone number
-
-HOW IT WORKS: See a truck on the road? "Look up DOT 1234567"
-              -> Shows company card with fleet size, safety rating, phone
-              -> Potential customer lead
 
 
 CATEGORY 4: MAPS & DIRECTIONS (Google Maps)
@@ -63,17 +53,10 @@ CATEGORY 4: MAPS & DIRECTIONS (Google Maps)
 9.  get_directions - Drive time, distance, turn-by-turn, Google Maps link
 10. find_places    - Find diesel shops, truck stops, parts stores nearby
 
-HOW IT WORKS: "How far is Stockton from here?" -> "45 min, 52 miles"
-              "Find diesel shops near Fresno" -> List with ratings + map links
-
 
 CATEGORY 5: SMS / TEXTING (Google Messages)
 --------------------------------------------
 11. send_sms - Compose a text, tap to send via Google Messages
-
-HOW IT WORKS: "Text that customer to confirm Thursday"
-              -> Shows pre-filled SMS card
-              -> One tap opens Google Messages with message ready to send
 
 
 CATEGORY 6: PROJECT MANAGEMENT (Asana)
@@ -83,11 +66,6 @@ CATEGORY 6: PROJECT MANAGEMENT (Asana)
 14. search_tasks   - Search across all projects
 15. create_task    - Create new tasks with due dates
 
-YOUR PROJECTS:
-  - NorCal CARB Mobile -- Digital Growth Roadmap
-  - NorCal CARB Mobile -- Weekly Cron Jobs
-  - Onboarding automation and subcontracting
-
 
 CATEGORY 7: BLOG (Cloudflare D1 Database)
 ------------------------------------------
@@ -95,54 +73,114 @@ CATEGORY 7: BLOG (Cloudflare D1 Database)
 17. read_blog_post    - Read a specific post
 18. create_blog_post  - Write and publish new SEO content
 
-CURRENT POSTS:
-  1. "2026 CARB Biannual Testing: What Every Truck Owner Needs to Know"
-  2. "Mobile vs. Shop Emissions Testing: Why Fleet Operators Are Switching"
-  3. "Understanding HD-OBD Testing: A Complete Guide for Truck Owners"
-
-HOW IT WORKS: "Write a blog post about DPF regeneration tips"
-              -> Samantha writes it, publishes to the D1 database
-
 
 CATEGORY 8: INVOICING
 -----------------------
 19. create_invoice - Generate professional invoices with line items
 20. get_pricing    - Current service pricing
 
-PRICING BUILT IN:
-  - HD-OBD Testing:       $75/truck
-  - Smoke/Opacity Testing: $199/truck
-  - Fleet Opacity:         $149+/truck
-  - RV/Motorhome:          $300/vehicle
 
-HOW IT WORKS: "Invoice ABC Trucking for 3 smoke tests"
-              -> Generates invoice NCM-2604-XXXX
-              -> 3x Smoke/Opacity @ $199 = $597
-              -> Bryan's business info, payment terms
+CATEGORY 9: CHALKBOARD (NEW - v1.1)
+-------------------------------------
+21. add_todo      - Samantha adds items proactively when Bryan says
+                    "I need to...", "remind me...", "gotta...", etc.
+22. list_todos    - "What's on my plate?" returns open items
+23. complete_todo - Mark done by id or by fuzzy text match
+24. delete_todo   - Remove items
+
+HOW IT WORKS: Tap the clipboard icon in the header (top of screen).
+A slide-up panel shows all open to-dos with checkboxes, due dates,
+delete buttons. A red badge on the icon shows the live count.
+Samantha writes to it via chat, Bryan can also type directly.
 
 
-CATEGORY 9: VOICE
+CATEGORY 10: BRIAN RESPONSE (NEW - v1.1)
+------------------------------------------
+25. ask_bryan - Presents 2-4 tap-able option cards in chat
+
+HOW IT WORKS: When there's a decision or ambiguity, instead of asking
+an open question, Samantha drops tap-able cards with short labels and
+optional emoji/detail. Bryan taps one -> that becomes his next message.
+Zero typing while driving.
+
+Example from Samantha:
+  "Which ABC Trucking?"
+  [ 📋 ABC Trucking Inc - DOT 123456, Stockton  ]
+  [ 📋 ABC Trucking LLC - DOT 789012, Fairfield ]
+
+
+CATEGORY 11: VOICE
 -------------------
-  - Voice INPUT:  Tap mic button, speak, auto-sends (Web Speech API)
-  - Voice OUTPUT: Samantha speaks responses aloud (Text-to-Speech)
-                  Uses "Samantha" voice on Apple devices
-  - Toggle on/off in header
+ - Voice INPUT:  Tap mic button, speak, auto-sends (Web Speech API)
+ - Voice OUTPUT: Samantha speaks responses aloud (Text-to-Speech)
+                 Uses "Samantha" voice on Apple devices
+ - Toggle on/off in header
 
 
-CATEGORY 10: CARB EXPERTISE (Built into personality)
+CATEGORY 12: CARB EXPERTISE (Built into personality)
 -----------------------------------------------------
 Samantha knows CARB regulations at expert level:
-  - Clean Truck Check (CTC) program
-  - Heavy-Duty Inspection & Maintenance (HD I/M)
-  - Periodic Smoke Inspection Program (PSIP)
-  - Opacity/Visual Inspection (OVI) procedures
-  - On-Board Diagnostics (OBD) testing
-  - TRUCRS reporting system
-  - VIN compliance, exemptions, deadlines, penalties
-  - Fleet compliance strategies
+ - Clean Truck Check (CTC) program
+ - Heavy-Duty Inspection & Maintenance (HD I/M)
+ - Periodic Smoke Inspection Program (PSIP)
+ - Opacity/Visual Inspection (OVI) procedures
+ - On-Board Diagnostics (OBD) testing
+ - TRUCRS reporting system
+ - VIN compliance, exemptions, deadlines, penalties
+ - Fleet compliance strategies
 
-HOW IT WORKS: "What are the penalties for missing a test?"
-              -> Gives accurate, actionable answer a tester can use
+
+================================================================================
+                    VISUAL DESIGN (NEW - v1.1)
+================================================================================
+
+THE CONFERENCE ROOM SCENE
+--------------------------
+When Bryan opens the app, he sees Samantha sitting across from him at a
+conference table. The scene is inline SVG -- no image assets, loads
+instantly, looks sharp on any screen size.
+
+Details:
+ - Samantha: soft blonde businesswoman, cream blouse, small gold earrings,
+   calm composed expression, gentle smile
+ - Papers scattered on the desk, open laptop (screen faces her), coffee mug
+ - Plant in the corner, small bookshelf on the wall behind her
+ - Big picture window with a warm sunset skyline -- "her"-movie vibe
+ - Subtle breathing animation, occasional blink (no lip movement)
+
+Layout behavior:
+ - Full scene (180px) on the welcome screen
+ - Auto-collapses to a thin strip (72px) the first time Bryan sends
+   a message, giving the chat more room
+ - Small -/+ button top-right of the scene to expand/collapse manually
+
+
+THE WORKLOAD SIGNAL (hair up / hair down)
+-------------------------------------------
+Samantha visually reflects her workload so Bryan can read system load
+at a glance:
+
+ CALM / HAIR DOWN (default)
+   - Under 6 open to-dos
+   - Not currently processing
+   - Hair flowing loose past her shoulders
+   - Slow relaxed breathing
+   - No status text
+
+ BUSY / HAIR UP (buried)
+   - 6+ open to-dos OR currently processing
+   - Hair pulled back into a neat bun with a pencil tucked through
+   - Reading glasses on
+   - Slightly faster breathing
+   - Status pill appears under her:
+       - 6-9 open  -> "heads down . focused"
+       - 10-14     -> "a lot on the plate"
+       - 15+       -> "drowning . pick top 3?"
+   - This is her telling Bryan: "Slow down -- let me catch up."
+
+This is the first-step pattern for the multi-agent future. Every future
+agent gets their own visual signals so at a glance from a home screen
+or dashboard Bryan can see who's buried and who has capacity.
 
 
 ================================================================================
@@ -158,16 +196,16 @@ Every customer test triggers an automatic 17-week follow-up chain:
 This repeats forever. No customer falls through the cracks.
 
 Why it matters:
-  - 2-4 truck operators WILL forget without this
-  - It's the difference between one-time and recurring revenue
-  - Samantha is the reminder engine -- her #1 job
+ - 2-4 truck operators WILL forget without this
+ - It's the difference between one-time and recurring revenue
+ - Samantha is the reminder engine -- her #1 job
 
 
 ================================================================================
                     BUSINESS CONTEXT (What Samantha Knows)
 ================================================================================
 
-  Owner:      Bryan O'Neill Gillis
+  Owner:      Bryan O'Neill Gillis, 48, single, no kids
   Company:    NorCal CARB Mobile LLC
   Tester ID:  IF530523
   Phone:      916-890-4427
@@ -181,122 +219,114 @@ Why it matters:
               Sweet spot: 1-4 truck owner-operators
               Expanding statewide
 
+  Next Biz:   Solar (coming soon -- separate agent planned)
+
 
 ================================================================================
-                    TECH STACK (What Samantha Knows)
+                    TECH STACK
 ================================================================================
 
-  Frontend:   Pure HTML/CSS/JS (no React, no build step)
+  Frontend:   Pure HTML/CSS/JS + inline SVG (no React, no build step)
   Backend:    Vercel serverless functions (10 API endpoints)
-  AI Brain:   Claude Sonnet (Anthropic API)
+  AI Brain:   Claude Sonnet 4 (Anthropic API)
   Calendar:   Google Calendar API
   Email:      Gmail API
   Maps:       Google Maps Directions + Places API
   Companies:  FMCSA QC API
   Projects:   Asana API
-  Blog:       Cloudflare D1 database
+  Blog:       Cloudflare D1 database (norcal-blog)
   SMS:        Google Messages deep links
   Voice:      Web Speech API (input) + TTS (output)
+  Chalkboard: Browser localStorage (300-item cap)
 
-  City Sites: Cloudflare Workers (Hayward, Stockton, Roseville, Fairfield)
-  Blog DB:    Cloudflare D1 (norcal-blog)
-  KV Stores:  19 namespaces on Cloudflare
+  Domain:     gillybelichick.vercel.app (live)
+              bryanoneillgillis.com (purchased, needs to be added in
+              Vercel dashboard -> Project -> Settings -> Domains)
 
-
-================================================================================
-              GOOGLE CLOUD / FREE TIER GROWTH PATH
-================================================================================
-
-WHAT'S FREE ON GOOGLE CLOUD (relevant to Samantha):
-
-  Google Maps Platform:     $200/month credit (covers Directions, Places,
-                            Geocoding -- more than enough for daily use)
-
-  Google Calendar API:      Free (part of Google Workspace)
-  Gmail API:                Free (part of Google Workspace)
-
-  Gemini API (AI Studio):   Free tier for Gemini 1.5 Flash
-                            (already powering the VIN site chat)
-
-  Firebase Hosting:         Free tier (10 GB storage, 360 MB/day transfer)
-  Cloud Run:                Free tier (2M requests/month)
-  Cloud Functions:          Free tier (2M invocations/month)
-
-  Vertex AI:                $300 free credits for new accounts
-                            Agent Builder for custom AI agents
-
-MONTHLY GROWTH PLAN:
-
-  Month 1 (NOW):
-    - Get Samantha working on Vercel/Cloudflare
-    - Calendar + email + company lookups live
-    - 17-week engine running
-    - Blog with 3+ posts
-
-  Month 2:
-    - Google Maps fully connected (directions, places)
-    - FMCSA company lookups live
-    - 10+ blog posts (Samantha writes them)
-    - Statewide landing page started
-
-  Month 3:
-    - Bluetooth OBD info page
-    - Customer portal started (test history, certificates)
-    - Asana fully integrated
-    - Invoice generation + email delivery
-
-  Month 4:
-    - Vertex AI Agent Builder -- train Samantha on your specific
-      customer interactions, common questions, your voice
-    - This is the "Magenta training" path -- fine-tuning an AI
-      on your business data so it sounds exactly like you
-
-  Month 5:
-    - Statewide site live
-    - Blog generating organic traffic
-    - Customer portal with Stripe payments
-    - Bluetooth OBD customers onboarding
-
-  Month 6:
-    - Samantha handles first-contact customer inquiries automatically
-    - 17-week engine has full customer database
-    - Revenue from recurring retest cycles visible
-    - Evaluate: move to own domain, scale up
+  Auto-env-sync: GitHub Action (.github/workflows/sync-vercel-secrets.yml)
+                 Pushes ANTHROPIC_API_KEY from GitHub secrets to Vercel
+                 on any workflow file change. Requires VERCEL_TOKEN and
+                 ANTHROPIC_API_KEY as GitHub repo secrets.
 
 
 ================================================================================
-              VERTEX AI / "MAGENTA TRAINING" PATH
+              THE MULTI-AGENT VISION (selling this as a product)
 ================================================================================
 
-Google's Vertex AI lets you fine-tune AI models on YOUR data:
+This template is MONETIZABLE. Each business vertical wants their own
+personality. The pattern:
 
-  What it means:
-    - Feed Samantha your past emails, customer conversations, quotes
-    - She learns YOUR voice, YOUR pricing style, YOUR objection handling
-    - Eventually she can draft customer responses that sound like YOU
+  1. Fork the Samantha repo
+  2. Rename everything to the new agent (~30 min)
+  3. Rewrite the system prompt for the new role / industry
+  4. Swap the SVG avatar + scene for the industry
+  5. Tweak/replace tools for that vertical's workflow
+  6. Deploy to a new Vercel project + domain
+  7. ~2-4 hours total per new agent
 
-  How it works:
-    1. Export your Gmail conversations (already have API access)
-    2. Format as training data (question/answer pairs)
-    3. Fine-tune a model on Vertex AI
-    4. Samantha uses the fine-tuned model for customer-facing responses
+EXAMPLES OF SELLABLE AGENTS:
 
-  Cost: $300 free credit for new Vertex AI accounts
-        After that, pay-per-training-job (typically $5-50 per fine-tune)
+  "Ray" - Solar sales + install agent (Bryan's next business)
+    Scene: Ray on a rooftop or in a truck, hi-vis vest, tablet
+    Tools: panel sizing calc, shading analyzer, SREC tracker,
+           install calendar, NEM application helper
+    Visual signals: hard hat ON = in the field, calculator = quoting,
+                    blueprints = designing
 
-  Timeline: Month 4+ (need enough customer data first)
+  "Vin" - Shop / automotive agent
+    Scene: burly guy at a shop workbench, tools hanging on pegboard,
+           muscle car on a lift in the background, grease rag in pocket
+    Tools: parts lookup, labor time estimator, invoice, ROs
+    Visual signals: rolled-up sleeves when deep in a job
 
-  What you'd learn:
-    - Vertex AI console and model management
-    - Training data preparation
-    - Evaluation and testing of fine-tuned models
-    - Deploying custom models to production
+  "Mia" - Customer service / AR collections
+    Scene: friendly woman with a headset on, filing cabinets,
+           sticky notes on the monitor
+    Visual signals: headset ON = on a call, coffee steaming = late shift
+
+  "Dalton" - Wall Street / finance
+    Scene: trader at a 6-monitor desk, skyline through the window,
+           Bloomberg terminal
+    Tools: portfolio stats, ticker lookup, news feed, alerts
+    Visual signals: tie loosened = after-hours, pen behind ear = focused
+
+  "Jordan" - Flooring / contracting
+    Scene: showroom with flooring samples, tablet showing floor plans
+    Tools: square-footage calc, material cost, install scheduler
+    Visual signals: knee pads on = on-site measuring
+
+WHERE TO DESIGN THEM:
+  - Scenes: Claude Code generates SVG directly. No Figma needed.
+  - Optional: Figma for more artistic mockups, then hand off SVG
+    description to Claude Code to build.
+  - All scenes are inline SVG -- zero image assets, fast load, crisp
+    on any screen (phone, laptop, 65" TV).
+
+
+================================================================================
+              DESKTOP / BIG-SCREEN MODE (coming next)
+================================================================================
+
+Current Samantha is phone-first (single column, 375px-ish wide). But
+on Bryan's 65" office TV or a desktop browser, we should use the space.
+
+Planned desktop layout:
+ - Full conference room scene dominates the center (much larger, more detail)
+ - Left sidebar: live chalkboard always visible, calendar strip, agent roster
+ - Right sidebar: chat column
+ - Top bar: agent switcher (Samantha, Ray, Mia, etc.) -- click to switch
+ - Each agent shows their current state (hair up/down, busy indicator)
+   in the switcher so Bryan can read load across the whole team
+
+This is the "command center on a TV" view. Same codebase, responsive CSS
+breakpoints. Build when ready.
 
 
 ================================================================================
               QUICK REFERENCE: TALKING TO SAMANTHA
 ================================================================================
 
+ General workflow:
   "What's on my calendar today?"
   "Schedule a smoke test for [company] on Thursday at 2"
   "Check my emails from CARB"
@@ -308,12 +338,40 @@ Google's Vertex AI lets you fine-tune AI models on YOUR data:
   "Invoice [company] for 2 HD-OBD tests"
   "What's the penalty for missing a CARB test?"
   "Write a blog post about fleet compliance tips"
-  "What are my Asana tasks this week?"
-  "Help me draft a response to that email"
   "What's our pricing?"
+
+ Chalkboard (she'll often add proactively):
+  "Remind me to call Joe Thursday"
+  "I need to order more decals"
+  "Don't let me forget the Fresno trip Monday"
+  "What's on my plate?"
+  "Mark the decal thing done"
+
+ Brian Response (she presents options, you tap):
+  Any time there's ambiguity, expect tap-able cards back.
 
 
 ================================================================================
-  Samantha v1.0 | Built April 2026 | NorCal CARB Mobile LLC
-  Powered by Claude (Anthropic) | 20 tools | 17-week engine
+              WHEN SHE'S NOT WORKING ("check your connection")
+================================================================================
+
+Cause 99% of the time: ANTHROPIC_API_KEY is missing from Vercel env vars.
+
+Fix path A (automatic - preferred):
+  Visit github.com/bgillis99-pixel/gillybelichick/actions ->
+  Run or re-run "Sync Secrets to Vercel" workflow. It reads the
+  secret from GitHub and pushes it to Vercel.
+  Prereq: secrets named VERCEL_TOKEN and ANTHROPIC_API_KEY must exist
+  in the GitHub repo settings.
+
+Fix path B (manual):
+  vercel.com/carbcleantruckcheckapp/gillybelichick/settings/environment-variables
+  Add ANTHROPIC_API_KEY = sk-ant-... (all 3 environments). Vercel auto-
+  redeploys.
+
+
+================================================================================
+  Samantha v1.1 | Updated April 2026 | NorCal CARB Mobile LLC
+  Powered by Claude Sonnet 4 (Anthropic) | 25 tools | 17-week engine |
+  Chalkboard | Brian Response | Conference room scene | Workload signal
 ================================================================================
