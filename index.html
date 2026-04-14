@@ -42,7 +42,7 @@
 
     /* Welcome */
     .welcome { flex: 1; display: flex; flex-direction: column; align-items: center;
-      justify-content: center; padding: 24px; text-align: center; }
+      justify-content: center; padding: 16px 24px 24px; text-align: center; }
     .welcome-avatar { width: 96px; height: 96px; border-radius: 50%;
       background: linear-gradient(135deg, var(--coral), var(--amber), #fb923c);
       display: flex; align-items: center; justify-content: center;
@@ -187,6 +187,32 @@
       background: var(--coral); flex-shrink: 0; }
     .todo-card .label { font-size: 13px; font-weight: 500; flex: 1; }
 
+    /* Office scene */
+    .scene { position: relative; width: 100%; height: 180px; overflow: hidden;
+      background: linear-gradient(180deg, #FFF2E0 0%, #FDE4C8 100%);
+      border-bottom: 1px solid rgba(232,114,90,.12); transition: height .35s ease; flex-shrink: 0; }
+    .scene.compact { height: 72px; }
+    .scene svg { width: 100%; height: 100%; display: block; transition: transform .35s ease; transform-origin: 50% 55%; }
+    .scene.compact svg { transform: scale(1.4) translateY(24%); }
+    .scene-toggle { position: absolute; top: 6px; right: 8px; width: 24px; height: 24px;
+      border-radius: 50%; background: rgba(255,255,255,.6); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: var(--muted);
+      font-size: 14px; z-index: 2; backdrop-filter: blur(4px); }
+    .scene-toggle:active { transform: scale(.92); }
+    .sam-breath { animation: samBreath 4.5s ease-in-out infinite; transform-origin: 200px 120px; }
+    @keyframes samBreath { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(1.01) translateY(-0.5px); } }
+    .sam-blink { animation: samBlink 6s ease-in-out infinite; }
+    @keyframes samBlink { 0%,94%,100% { opacity: 1; } 96%,98% { opacity: 0; } }
+    .sun-glow { animation: sunGlow 7s ease-in-out infinite; transform-origin: 280px 75px; }
+    @keyframes sunGlow { 0%,100% { opacity: .88; } 50% { opacity: 1; transform: scale(1.04); } }
+
+    /* Speech bubble connector for Samantha's messages - looks like it emerges from her */
+    .msg.sam .bubble { position: relative; }
+    .msg.sam:first-of-type .bubble::before {
+      content: ''; position: absolute; top: -12px; left: 16px; width: 2px; height: 12px;
+      background: linear-gradient(180deg, transparent, rgba(232,114,90,.25)); border-radius: 2px;
+    }
+
     /* Brian response (tap-able options) */
     .options { display: flex; flex-direction: column; gap: 6px; margin-top: 8px;
       max-width: 85%; animation: slideUp .3s ease-out; }
@@ -221,8 +247,180 @@
     </button>
   </div>
 
+  <div class="scene" id="scene">
+    <button class="scene-toggle" id="sceneToggle" title="Collapse scene" aria-label="Toggle scene">−</button>
+    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <radialGradient id="roomGlow" cx="50%" cy="35%" r="75%">
+          <stop offset="0" stop-color="#FFF5E6"/>
+          <stop offset="1" stop-color="#F9DEC0"/>
+        </radialGradient>
+        <linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FFF0D8"/>
+          <stop offset="0.35" stop-color="#FFCF95"/>
+          <stop offset="0.7" stop-color="#F4A261"/>
+          <stop offset="1" stop-color="#E8725A"/>
+        </linearGradient>
+        <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#B58A68"/>
+          <stop offset="1" stop-color="#7F5539"/>
+        </linearGradient>
+        <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FBE4CE"/>
+          <stop offset="1" stop-color="#EECCAF"/>
+        </linearGradient>
+        <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E8C77A"/>
+          <stop offset="0.5" stop-color="#D4A857"/>
+          <stop offset="1" stop-color="#B8923F"/>
+        </linearGradient>
+        <linearGradient id="blouse" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#F8F0E3"/>
+          <stop offset="1" stop-color="#E8DCC8"/>
+        </linearGradient>
+        <radialGradient id="sunDisc" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#FFFAEC"/>
+          <stop offset="0.6" stop-color="#FFE8A8"/>
+          <stop offset="1" stop-color="#FFD480" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Room background -->
+      <rect width="400" height="200" fill="url(#roomGlow)"/>
+
+      <!-- Window -->
+      <rect x="55" y="14" width="290" height="120" fill="url(#sunset)" rx="2"/>
+      <!-- Sun glow -->
+      <circle class="sun-glow" cx="280" cy="75" r="28" fill="url(#sunDisc)"/>
+      <!-- Distant skyline hint -->
+      <path d="M 55 110 L 95 110 L 95 100 L 115 100 L 115 108 L 140 108 L 140 95 L 165 95 L 165 110 L 195 110 L 195 102 L 218 102 L 218 110 L 245 110 L 245 98 L 265 98 L 265 110 L 290 110 L 290 105 L 310 105 L 310 110 L 345 110 L 345 134 L 55 134 Z" fill="#C86B52" opacity="0.25"/>
+      <!-- Window frame -->
+      <rect x="55" y="14" width="290" height="120" fill="none" stroke="#C9A374" stroke-width="2"/>
+      <line x1="200" y1="14" x2="200" y2="134" stroke="#C9A374" stroke-width="1.5"/>
+      <line x1="55" y1="74" x2="345" y2="74" stroke="#C9A374" stroke-width="1.5"/>
+
+      <!-- Wall shelf left -->
+      <rect x="18" y="42" width="30" height="58" fill="#FFF5E6" stroke="#D6B78D" stroke-width="1" rx="2"/>
+      <line x1="18" y1="62" x2="48" y2="62" stroke="#D6B78D" stroke-width="0.8"/>
+      <line x1="18" y1="82" x2="48" y2="82" stroke="#D6B78D" stroke-width="0.8"/>
+      <!-- Books -->
+      <rect x="21" y="48" width="3" height="12" fill="#B55"/>
+      <rect x="25" y="48" width="3" height="12" fill="#558"/>
+      <rect x="29" y="48" width="3" height="12" fill="#875"/>
+      <rect x="33" y="48" width="3" height="12" fill="#385"/>
+
+      <!-- Plant right -->
+      <ellipse cx="368" cy="132" rx="14" ry="4" fill="#6F4A33"/>
+      <path d="M 354 128 L 382 128 L 378 145 L 358 145 Z" fill="#8B5A3C"/>
+      <path d="M 368 128 Q 358 108 356 88" fill="none" stroke="#6B8E4E" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M 368 128 Q 368 105 365 82" fill="none" stroke="#7AA25C" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M 368 128 Q 378 110 382 92" fill="none" stroke="#6B8E4E" stroke-width="2.2" stroke-linecap="round"/>
+      <ellipse cx="356" cy="92" rx="5" ry="11" fill="#6B8E4E" transform="rotate(-18 356 92)"/>
+      <ellipse cx="365" cy="82" rx="4.5" ry="10" fill="#7AA25C"/>
+      <ellipse cx="380" cy="94" rx="5" ry="11" fill="#6B8E4E" transform="rotate(20 380 94)"/>
+
+      <!-- Conference table (perspective) -->
+      <path d="M -10 158 L 410 158 L 395 200 L 5 200 Z" fill="url(#wood)"/>
+      <path d="M -10 158 L 410 158" stroke="#D4AE82" stroke-width="1.5"/>
+
+      <!-- Papers scattered on desk -->
+      <g transform="translate(65 166) rotate(-6)">
+        <rect width="46" height="28" fill="#FFFFFF" stroke="#E0D5C0" stroke-width="0.5" rx="1"/>
+        <line x1="4" y1="6" x2="42" y2="6" stroke="#D6C9B0" stroke-width="0.6"/>
+        <line x1="4" y1="10" x2="38" y2="10" stroke="#D6C9B0" stroke-width="0.6"/>
+        <line x1="4" y1="14" x2="40" y2="14" stroke="#D6C9B0" stroke-width="0.6"/>
+        <line x1="4" y1="18" x2="30" y2="18" stroke="#D6C9B0" stroke-width="0.6"/>
+        <line x1="4" y1="22" x2="36" y2="22" stroke="#D6C9B0" stroke-width="0.6"/>
+      </g>
+      <g transform="translate(105 172) rotate(4)">
+        <rect width="40" height="24" fill="#FFFFFF" stroke="#E0D5C0" stroke-width="0.5" rx="1"/>
+        <line x1="3" y1="5" x2="35" y2="5" stroke="#D6C9B0" stroke-width="0.6"/>
+        <line x1="3" y1="9" x2="32" y2="9" stroke="#D6C9B0" stroke-width="0.6"/>
+        <line x1="3" y1="13" x2="34" y2="13" stroke="#D6C9B0" stroke-width="0.6"/>
+        <line x1="3" y1="17" x2="28" y2="17" stroke="#D6C9B0" stroke-width="0.6"/>
+      </g>
+
+      <!-- Samantha (center, blonde businesswoman) -->
+      <g class="sam-breath">
+        <!-- Blouse -->
+        <path d="M 152 200 L 158 152 Q 170 140 200 140 Q 230 140 242 152 L 248 200 Z" fill="url(#blouse)"/>
+        <!-- Blouse collar / V-neck -->
+        <path d="M 185 144 L 200 158 L 215 144" fill="url(#skin)"/>
+        <path d="M 185 144 L 200 158 L 215 144" fill="none" stroke="#D4C2A8" stroke-width="0.8"/>
+        <!-- Subtle shoulder shading -->
+        <path d="M 158 152 Q 170 140 200 140 Q 230 140 242 152" fill="none" stroke="#D4C2A8" stroke-width="0.5" opacity="0.6"/>
+
+        <!-- Neck -->
+        <path d="M 192 128 L 192 142 Q 200 146 208 142 L 208 128 Z" fill="url(#skin)"/>
+        <!-- Neck shadow -->
+        <path d="M 192 134 Q 200 138 208 134" fill="none" stroke="#D4A87A" stroke-width="0.6" opacity="0.5"/>
+
+        <!-- Hair back layer (falls past shoulders) -->
+        <path d="M 170 105 Q 162 130 158 158 Q 170 148 178 145 L 178 115 Z" fill="url(#hair)"/>
+        <path d="M 230 105 Q 238 130 242 158 Q 230 148 222 145 L 222 115 Z" fill="url(#hair)"/>
+
+        <!-- Head -->
+        <ellipse cx="200" cy="108" rx="20" ry="22" fill="url(#skin)"/>
+        <!-- Jaw shadow -->
+        <path d="M 186 120 Q 200 132 214 120" fill="none" stroke="#D4A87A" stroke-width="0.6" opacity="0.35"/>
+
+        <!-- Hair front: soft side-swept blonde -->
+        <path d="M 179 108 Q 178 88 192 84 Q 204 82 215 85 Q 222 90 221 105 Q 220 96 212 93 Q 205 92 200 95 Q 194 100 189 106 Q 185 111 182 112 Q 179 111 179 108 Z" fill="url(#hair)"/>
+        <!-- Hair highlight -->
+        <path d="M 184 94 Q 192 88 204 86" fill="none" stroke="#F5E0A0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+        <!-- Side strand -->
+        <path d="M 221 105 Q 225 118 223 130" fill="none" stroke="#D4A857" stroke-width="2.5" stroke-linecap="round"/>
+
+        <!-- Eyebrows -->
+        <path d="M 189 101 Q 193 99.5 196 101" fill="none" stroke="#A07E3C" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M 204 101 Q 207 99.5 211 101" fill="none" stroke="#A07E3C" stroke-width="1.2" stroke-linecap="round"/>
+
+        <!-- Eyes (almond, soft blue-green hint) -->
+        <g class="sam-blink">
+          <ellipse cx="193" cy="107" rx="2.4" ry="1.6" fill="#FFFFFF"/>
+          <circle cx="193" cy="107" r="1.4" fill="#5B7A8B"/>
+          <circle cx="193.3" cy="106.7" r="0.5" fill="#FFFFFF"/>
+          <ellipse cx="207" cy="107" rx="2.4" ry="1.6" fill="#FFFFFF"/>
+          <circle cx="207" cy="107" r="1.4" fill="#5B7A8B"/>
+          <circle cx="207.3" cy="106.7" r="0.5" fill="#FFFFFF"/>
+        </g>
+        <!-- Lashes -->
+        <path d="M 190 106 Q 193 105.5 196 106" fill="none" stroke="#2D2D2D" stroke-width="0.7" stroke-linecap="round"/>
+        <path d="M 204 106 Q 207 105.5 210 106" fill="none" stroke="#2D2D2D" stroke-width="0.7" stroke-linecap="round"/>
+
+        <!-- Nose (subtle) -->
+        <path d="M 200 112 Q 198 116 200 118 Q 202 116 200 112" fill="none" stroke="#D4A87A" stroke-width="0.6" stroke-linecap="round" opacity="0.5"/>
+
+        <!-- Lips (soft pink, closed, no animation) -->
+        <path d="M 194 122 Q 197 121 200 121.5 Q 203 121 206 122 Q 203 124 200 124 Q 197 124 194 122 Z" fill="#D17B6E"/>
+        <path d="M 194 122 Q 200 121 206 122" fill="none" stroke="#A8564A" stroke-width="0.4"/>
+
+        <!-- Subtle blush -->
+        <ellipse cx="186" cy="113" rx="3.5" ry="2" fill="#E8725A" opacity="0.18"/>
+        <ellipse cx="214" cy="113" rx="3.5" ry="2" fill="#E8725A" opacity="0.18"/>
+
+        <!-- Earring hint -->
+        <circle cx="179" cy="114" r="0.8" fill="#D4AF37"/>
+        <circle cx="221" cy="114" r="0.8" fill="#D4AF37"/>
+      </g>
+
+      <!-- Laptop in front of her (open, screen faces her) -->
+      <path d="M 172 180 L 228 180 L 232 192 L 168 192 Z" fill="#2C2C2C"/>
+      <rect x="172" y="164" width="56" height="16" fill="#3A3A3A" rx="1"/>
+      <rect x="174" y="166" width="52" height="12" fill="#E8725A" opacity="0.35"/>
+      <rect x="174" y="166" width="52" height="12" fill="none" stroke="#222" stroke-width="0.4"/>
+
+      <!-- Coffee mug -->
+      <rect x="255" y="170" width="16" height="18" fill="#FFFFFF" stroke="#C9A374" stroke-width="1" rx="1"/>
+      <path d="M 271 174 Q 276 174 276 179 Q 276 184 271 184" fill="none" stroke="#C9A374" stroke-width="1"/>
+      <ellipse cx="263" cy="171" rx="7" ry="1.5" fill="#6B4423"/>
+
+      <!-- Pen next to laptop -->
+      <rect x="240" y="189" width="22" height="2" fill="#E8725A" rx="1" transform="rotate(-8 251 190)"/>
+    </svg>
+  </div>
+
   <div id="welcome" class="welcome">
-    <div class="welcome-avatar"><span>S</span></div>
     <h2>Command Center</h2>
     <p class="subtitle">Samantha is online</p>
     <p>Calendar, email, directions, company lookups, texts, invoicing, CARB rules -- I've got it all. What's the mission?</p>
@@ -354,12 +552,31 @@ function speak(text) {
 }
 if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
 
+// Scene (office) toggle
+const sceneEl = $('#scene'), sceneToggleEl = $('#sceneToggle');
+let sceneCompact = localStorage.getItem('samantha_scene_compact') === 'true';
+function applySceneState() {
+  if (sceneCompact) { sceneEl.classList.add('compact'); sceneToggleEl.textContent = '+'; sceneToggleEl.title = 'Expand scene'; }
+  else { sceneEl.classList.remove('compact'); sceneToggleEl.textContent = '−'; sceneToggleEl.title = 'Compact scene'; }
+}
+applySceneState();
+sceneToggleEl.onclick = () => {
+  sceneCompact = !sceneCompact;
+  localStorage.setItem('samantha_scene_compact', sceneCompact);
+  applySceneState();
+};
+
 // Render
 function renderMessages() {
   if (messages.length === 0) {
-    welcomeEl.style.display = 'flex'; chatEl.style.display = 'none'; return;
+    welcomeEl.style.display = 'flex'; chatEl.style.display = 'none';
+    // Restore user's scene preference (full scene in welcome state by default)
+    applySceneState();
+    return;
   }
   welcomeEl.style.display = 'none'; chatEl.style.display = 'block';
+  // Auto-compact scene during active chat for more chat room (user can still toggle)
+  if (!sceneCompact) { sceneEl.classList.add('compact'); sceneToggleEl.textContent = '+'; }
   msgsEl.innerHTML = messages.map(m => {
     const time = new Date(m.timestamp).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
     let cards = '';
