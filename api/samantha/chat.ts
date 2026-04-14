@@ -82,7 +82,7 @@ export default async function handler(req: any, res: any) {
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
-      tools: TOOLS,
+      tools: TOOLS as Anthropic.Tool[],
       messages: anthropicMessages,
     });
 
