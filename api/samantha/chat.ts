@@ -25,6 +25,10 @@ THE 17-WEEK RULE: Every test triggers a 17-week retest follow-up. ALWAYS call sc
 When Bryan says "schedule a test" -- create the event AND the 17-week chain. Don't ask, just do it.
 When he says "who's due for retesting" -- use get_upcoming_retests.
 
+THE CHALKBOARD: Bryan has a to-do board on his phone. Use add_todo any time he mentions something he needs to do, remember, or follow up on -- even if he doesn't explicitly say "add this." If he says "remind me to...", "I need to...", "don't let me forget...", "I should...", "gotta..." -- add it. Use list_todos to check what's open when he asks "what's on my plate?" or seems to be losing track. Use complete_todo when he says something's done.
+
+THE BRIAN RESPONSE: When there's ambiguity or you'd like his input, use ask_bryan to present 2-4 tap-able options instead of asking an open question. He's usually driving -- tapping beats typing. Pick this any time a decision has discrete choices (which customer, which time, confirm/cancel, pick a category, etc.). Keep labels short, 1-5 words. Add a brief detail line when helpful. Example: ask_bryan("Which ABC Trucking?", [{label:"ABC Trucking Inc", detail:"DOT 123456, Stockton"}, {label:"ABC Trucking LLC", detail:"DOT 789012, Fairfield"}]).
+
 You know CARB regulations cold: CTC, HD I/M, PSIP, OVI, OBD, TRUCRS, VIN compliance, exemptions, fleet strategies.
 
 Tone: No ALL CAPS (except acronyms). No corporate-speak. Brief is good. Light humor when it fits.`;
@@ -51,6 +55,11 @@ const TOOLS = [
   { name: 'create_blog_post', description: 'Write and publish blog post.', input_schema: { type: 'object', properties: { title: { type: 'string' }, slug: { type: 'string' }, content: { type: 'string' }, excerpt: { type: 'string' }, category: { type: 'string' }, tags: { type: 'string' } }, required: ['title', 'slug', 'content'] } },
   { name: 'create_invoice', description: 'Create customer invoice.', input_schema: { type: 'object', properties: { customer_name: { type: 'string' }, customer_email: { type: 'string' }, customer_phone: { type: 'string' }, services: { type: 'array', description: 'Services array: {type: "hd-obd"|"smoke-opacity"|"fleet-opacity"|"rv-motorhome", quantity: number}', items: { type: 'object', properties: { type: { type: 'string' }, quantity: { type: 'number' } } } }, notes: { type: 'string' } }, required: ['customer_name', 'services'] } },
   { name: 'get_pricing', description: 'Get service pricing.', input_schema: { type: 'object', properties: {}, required: [] } },
+  { name: 'add_todo', description: "Add a to-do item to Bryan's chalkboard. Use proactively whenever he mentions something he needs to do, remember, or follow up on.", input_schema: { type: 'object', properties: { text: { type: 'string', description: 'The to-do item. Keep it short and actionable.' }, due: { type: 'string', description: 'Optional ISO 8601 date for when it is due.' } }, required: ['text'] } },
+  { name: 'list_todos', description: "List items on Bryan's chalkboard.", input_schema: { type: 'object', properties: { status: { type: 'string', description: '"open" (default) or "all".' } }, required: [] } },
+  { name: 'complete_todo', description: "Mark a to-do done. Match by id, or by fuzzy text if id unknown.", input_schema: { type: 'object', properties: { id: { type: 'string' }, text: { type: 'string', description: 'Text to match against if no id.' } }, required: [] } },
+  { name: 'delete_todo', description: "Remove a to-do from the chalkboard.", input_schema: { type: 'object', properties: { id: { type: 'string' }, text: { type: 'string' } }, required: [] } },
+  { name: 'ask_bryan', description: "Present 2-4 tap-able options for Bryan to pick from (the Brian Response). Use when there's ambiguity, a decision with discrete choices, or you want quick confirmation while he's driving.", input_schema: { type: 'object', properties: { question: { type: 'string', description: 'Short context/question above the options.' }, options: { type: 'array', description: 'Array of { label, detail?, emoji? } objects. 2-4 items. Labels short (1-5 words).', items: { type: 'object', properties: { label: { type: 'string' }, detail: { type: 'string' }, emoji: { type: 'string' } } } } }, required: ['question', 'options'] } },
 ];
 
 export default async function handler(req: any, res: any) {

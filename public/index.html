@@ -124,6 +124,84 @@
       transition: all .2s; }
     .send-btn:disabled { opacity: .4; box-shadow: none; }
     .send-btn:active { transform: scale(.95); }
+
+    /* Chalkboard */
+    .board-btn { position: relative; background: #f3f4f6; color: var(--muted); }
+    .board-btn.has-items { background: rgba(232,114,90,.1); color: var(--coral); }
+    .board-count { position: absolute; top: -4px; right: -4px; min-width: 16px; height: 16px;
+      padding: 0 4px; border-radius: 999px; background: var(--coral); color: #fff;
+      font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+    .board-count.hidden { display: none; }
+    .board-panel { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 100;
+      background: rgba(0,0,0,.4); display: none; align-items: flex-end; justify-content: center;
+      animation: fadeIn .2s ease-out; }
+    .board-panel.open { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .board-sheet { width: 100%; max-width: 600px; max-height: 80vh; background: var(--cream);
+      border-radius: 24px 24px 0 0; display: flex; flex-direction: column;
+      animation: slideUpSheet .3s cubic-bezier(.2,.8,.2,1); overflow: hidden; }
+    @keyframes slideUpSheet { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .board-head { display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid rgba(232,114,90,.12); background: #fff; }
+    .board-head h3 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .board-close { background: #f3f4f6; border: none; width: 32px; height: 32px;
+      border-radius: 50%; cursor: pointer; color: var(--muted); display: flex;
+      align-items: center; justify-content: center; }
+    .board-body { overflow-y: auto; flex: 1; padding: 12px 16px 16px; }
+    .board-add { display: flex; gap: 8px; margin-bottom: 12px; }
+    .board-add input { flex: 1; border: 1px solid #e5e7eb; border-radius: 20px;
+      padding: 10px 14px; font-size: 14px; background: #fff; outline: none; font-family: inherit; }
+    .board-add input:focus { border-color: rgba(232,114,90,.4); box-shadow: 0 0 0 2px rgba(232,114,90,.1); }
+    .board-add button { width: 40px; height: 40px; border-radius: 50%; border: none;
+      background: linear-gradient(135deg, var(--coral), var(--amber)); color: #fff;
+      cursor: pointer; font-size: 18px; font-weight: 300; display: flex; align-items: center;
+      justify-content: center; box-shadow: 0 2px 8px rgba(232,114,90,.3); }
+    .board-list { display: flex; flex-direction: column; gap: 8px; }
+    .board-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 32px 16px;
+      font-style: italic; }
+    .board-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px;
+      background: #fff; border-radius: 12px; border: 1px solid #f3f4f6;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04); animation: slideUp .25s ease-out; }
+    .board-item.done { opacity: .55; background: #fafafa; }
+    .board-item .check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #d1d5db;
+      flex-shrink: 0; cursor: pointer; margin-top: 1px; display: flex; align-items: center;
+      justify-content: center; transition: all .15s; }
+    .board-item .check.checked { background: var(--coral); border-color: var(--coral); color: #fff;
+      font-size: 12px; }
+    .board-item.done .text { text-decoration: line-through; color: var(--muted); }
+    .board-item .text { flex: 1; font-size: 14px; line-height: 1.4; word-break: break-word; }
+    .board-item .due { font-size: 11px; color: var(--coral); margin-top: 2px; font-weight: 500; }
+    .board-item .del { background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: 16px; padding: 0 4px; opacity: .4; transition: opacity .15s; }
+    .board-item .del:hover { opacity: 1; color: #ef4444; }
+    .board-section { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase;
+      letter-spacing: .05em; margin: 16px 0 6px; padding: 0 4px; }
+    .board-section:first-child { margin-top: 0; }
+
+    /* Todo card inside chat */
+    .todo-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb;
+      padding: 10px 12px; margin-top: 8px; max-width: 85%; display: flex; align-items: center;
+      gap: 8px; animation: slideUp .3s ease-out; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+    .todo-card .dot-icon { width: 8px; height: 8px; border-radius: 50%;
+      background: var(--coral); flex-shrink: 0; }
+    .todo-card .label { font-size: 13px; font-weight: 500; flex: 1; }
+
+    /* Brian response (tap-able options) */
+    .options { display: flex; flex-direction: column; gap: 6px; margin-top: 8px;
+      max-width: 85%; animation: slideUp .3s ease-out; }
+    .options-q { font-size: 12px; color: var(--muted); padding: 0 4px 2px; font-weight: 500; }
+    .option { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+      padding: 12px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+      text-align: left; font-family: inherit; font-size: 14px; color: var(--text);
+      box-shadow: 0 1px 3px rgba(0,0,0,.04); transition: all .15s; }
+    .option:hover { border-color: rgba(232,114,90,.4); box-shadow: 0 2px 8px rgba(232,114,90,.12); transform: translateY(-1px); }
+    .option:active { transform: scale(.98); }
+    .option.used { opacity: .5; pointer-events: none; }
+    .option-emoji { font-size: 20px; flex-shrink: 0; }
+    .option-content { flex: 1; min-width: 0; }
+    .option-label { font-weight: 500; line-height: 1.3; }
+    .option-detail { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.3; }
   </style>
 </head>
 <body>
@@ -131,6 +209,10 @@
   <div class="header">
     <div class="avatar"><span>S</span><div class="dot"></div></div>
     <div class="header-info"><h1>Samantha</h1><p>command center active</p></div>
+    <button class="header-btn board-btn" id="boardBtn" title="Chalkboard">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      <span class="board-count hidden" id="boardCount">0</span>
+    </button>
     <button class="header-btn voice-btn" id="voiceToggle" title="Toggle voice output">
       <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
     </button>
@@ -149,6 +231,22 @@
 
   <div id="chatArea" class="chat" style="display:none">
     <div class="messages" id="messages"></div>
+  </div>
+
+  <div class="board-panel" id="boardPanel">
+    <div class="board-sheet">
+      <div class="board-head">
+        <h3>📋 Chalkboard</h3>
+        <button class="board-close" id="boardClose" aria-label="Close">×</button>
+      </div>
+      <div class="board-body">
+        <div class="board-add">
+          <input type="text" id="boardInput" placeholder="Add a to-do for Samantha..." maxlength="200" />
+          <button id="boardAddBtn" title="Add">+</button>
+        </div>
+        <div id="boardList" class="board-list"></div>
+      </div>
+    </div>
   </div>
 
   <div class="input-bar">
@@ -324,6 +422,25 @@ function renderCard(r) {
       ${d.rating?`<div class="card-detail" style="color:var(--amber)">${'★'.repeat(Math.round(d.rating))} ${d.rating}</div>`:''}
       ${d.mapUrl?`<a href="${d.mapUrl}" target="_blank" class="card-link">View on map ↗</a>`:''}</div></div></div>`;
   }
+  if (r.type === 'todo') {
+    const d = r.data, due = fmtDue(d.due);
+    return `<div class="todo-card"><div class="dot-icon"></div>
+      <div class="label">📋 Added: ${esc(d.text)}${due?` <span style="color:var(--coral);font-size:11px">· ${due}</span>`:''}</div></div>`;
+  }
+  if (r.type === 'options') {
+    const d = r.data;
+    const used = d.used ? 'used' : '';
+    const opts = (d.options || []).map((o, i) => {
+      const emoji = o.emoji || ['①','②','③','④','⑤','⑥'][i] || '•';
+      const detail = o.detail ? `<div class="option-detail">${esc(o.detail)}</div>` : '';
+      return `<button class="option ${used}" data-opt-label="${esc(o.label)}">
+        <span class="option-emoji">${emoji}</span>
+        <div class="option-content"><div class="option-label">${esc(o.label)}</div>${detail}</div>
+      </button>`;
+    }).join('');
+    const q = d.question ? `<div class="options-q">${esc(d.question)}</div>` : '';
+    return `<div class="options">${q}${opts}</div>`;
+  }
   return '';
 }
 
@@ -401,6 +518,44 @@ async function callTool(name, input) {
     return { result: JSON.stringify({ date: now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}), time: now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }) };
   }
 
+  // Brian response: present multiple choice options for Bryan to tap
+  if (name === 'ask_bryan') {
+    const options = Array.isArray(input.options) ? input.options : [];
+    return {
+      result: JSON.stringify({ presented: true, options: options.map(o => o.label) }),
+      cards: [{ type: 'options', data: { question: input.question || '', options } }]
+    };
+  }
+
+  // Chalkboard tools run entirely client-side
+  if (name === 'add_todo') {
+    const t = addTodoLocal(input.text || '', input.due);
+    return { result: JSON.stringify({ ok: true, id: t.id, text: t.text, due: t.due, open_count: countOpen() }),
+      cards: [{ type: 'todo', data: { text: t.text, due: t.due } }] };
+  }
+  if (name === 'list_todos') {
+    const openOnly = input?.status !== 'all';
+    const list = (openOnly ? todos.filter(t => !t.done) : todos)
+      .map(t => ({ id: t.id, text: t.text, due: t.due, done: t.done }))
+      .slice(-50);
+    return { result: JSON.stringify({ todos: list, open_count: countOpen(), total: todos.length }) };
+  }
+  if (name === 'complete_todo') {
+    const t = todos.find(x => x.id === input.id) ||
+              todos.find(x => !x.done && x.text.toLowerCase().includes((input.text||'').toLowerCase()));
+    if (!t) return { result: JSON.stringify({ ok: false, error: 'Not found' }) };
+    t.done = true; t.completedAt = Date.now();
+    saveBoard(); renderBoard();
+    return { result: JSON.stringify({ ok: true, completed: t.text, open_count: countOpen() }) };
+  }
+  if (name === 'delete_todo') {
+    const before = todos.length;
+    if (input.id) todos = todos.filter(x => x.id !== input.id);
+    else if (input.text) todos = todos.filter(x => !x.text.toLowerCase().includes(input.text.toLowerCase()));
+    saveBoard(); renderBoard();
+    return { result: JSON.stringify({ ok: true, removed: before - todos.length, open_count: countOpen() }) };
+  }
+
   const routeMap = {
     get_calendar_events: ['calendar',{action:'get_calendar_events'}],
     create_calendar_event: ['calendar',{action:'create_calendar_event'}],
@@ -461,6 +616,128 @@ async function callTool(name, input) {
 function save() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-100))); } catch(e) { localStorage.removeItem(STORAGE_KEY); }
 }
+
+/* ============================ CHALKBOARD ============================ */
+const BOARD_KEY = 'samantha_chalkboard';
+let todos = JSON.parse(localStorage.getItem(BOARD_KEY) || '[]');
+
+const boardBtn = $('#boardBtn'), boardPanel = $('#boardPanel'), boardClose = $('#boardClose');
+const boardList = $('#boardList'), boardInput = $('#boardInput'), boardAddBtn = $('#boardAddBtn');
+const boardCount = $('#boardCount');
+
+function saveBoard() { localStorage.setItem(BOARD_KEY, JSON.stringify(todos.slice(-300))); }
+
+function countOpen() { return todos.filter(t => !t.done).length; }
+
+function updateBoardBadge() {
+  const n = countOpen();
+  if (n === 0) {
+    boardCount.classList.add('hidden');
+    boardBtn.classList.remove('has-items');
+  } else {
+    boardCount.classList.remove('hidden');
+    boardCount.textContent = n > 99 ? '99+' : String(n);
+    boardBtn.classList.add('has-items');
+  }
+}
+
+function fmtDue(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const now = new Date(), diff = d - now, day = 864e5;
+  if (diff < 0) return 'Overdue · ' + d.toLocaleDateString([], {month:'short', day:'numeric'});
+  if (diff < day) return 'Today';
+  if (diff < 2*day) return 'Tomorrow';
+  if (diff < 7*day) return d.toLocaleDateString([], {weekday:'long'});
+  return d.toLocaleDateString([], {month:'short', day:'numeric'});
+}
+
+function renderBoard() {
+  updateBoardBadge();
+  if (todos.length === 0) {
+    boardList.innerHTML = '<div class="board-empty">Nothing on the chalkboard yet.<br>Tell Samantha to "add a to-do" or type one above.</div>';
+    return;
+  }
+  const open = todos.filter(t => !t.done).sort((a,b) => {
+    if (a.due && !b.due) return -1;
+    if (!a.due && b.due) return 1;
+    if (a.due && b.due) return new Date(a.due) - new Date(b.due);
+    return b.createdAt - a.createdAt;
+  });
+  const done = todos.filter(t => t.done).sort((a,b) => (b.completedAt||0) - (a.completedAt||0)).slice(0, 10);
+
+  const item = t => {
+    const due = fmtDue(t.due);
+    return `<div class="board-item ${t.done?'done':''}" data-id="${t.id}">
+      <div class="check ${t.done?'checked':''}" data-act="toggle" data-id="${t.id}">${t.done?'✓':''}</div>
+      <div class="text">${esc(t.text)}${due?`<div class="due">${due}</div>`:''}</div>
+      <button class="del" data-act="delete" data-id="${t.id}" aria-label="Delete">×</button>
+    </div>`;
+  };
+
+  let html = '';
+  if (open.length) html += '<div class="board-section">Open (' + open.length + ')</div>' + open.map(item).join('');
+  if (done.length) html += '<div class="board-section">Recently done</div>' + done.map(item).join('');
+  boardList.innerHTML = html;
+}
+
+boardList.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const id = el.dataset.id, act = el.dataset.act;
+  const t = todos.find(x => x.id === id); if (!t) return;
+  if (act === 'toggle') {
+    t.done = !t.done;
+    t.completedAt = t.done ? Date.now() : null;
+  } else if (act === 'delete') {
+    todos = todos.filter(x => x.id !== id);
+  }
+  saveBoard(); renderBoard();
+});
+
+function addTodoLocal(text, due) {
+  const t = {
+    id: 'td' + Date.now() + Math.random().toString(36).slice(2,6),
+    text: text.trim(),
+    due: due || null,
+    done: false,
+    createdAt: Date.now()
+  };
+  todos.push(t);
+  saveBoard(); renderBoard();
+  return t;
+}
+
+boardBtn.onclick = () => { boardPanel.classList.add('open'); renderBoard(); setTimeout(() => boardInput.focus(), 300); };
+boardClose.onclick = () => boardPanel.classList.remove('open');
+boardPanel.onclick = e => { if (e.target === boardPanel) boardPanel.classList.remove('open'); };
+
+boardAddBtn.onclick = () => {
+  const v = boardInput.value.trim();
+  if (v) { addTodoLocal(v); boardInput.value = ''; boardInput.focus(); }
+};
+boardInput.onkeydown = e => {
+  if (e.key === 'Enter') { e.preventDefault(); boardAddBtn.onclick(); }
+};
+
+updateBoardBadge();
+/* ============================ /CHALKBOARD ============================ */
+
+/* ============================ BRIAN RESPONSE ============================ */
+// Delegated handler: tap any option button in the chat to answer with that label.
+// Also marks the tapped set as "used" so it's visually obvious which ones are done.
+msgsEl.addEventListener('click', e => {
+  const btn = e.target.closest('.option');
+  if (!btn || btn.classList.contains('used')) return;
+  const label = btn.dataset.optLabel || btn.innerText.trim();
+  // Mark all siblings in this options group as used
+  const group = btn.closest('.options');
+  if (group) group.querySelectorAll('.option').forEach(b => b.classList.add('used'));
+  // Send the selection as Bryan's next message
+  sendMessage(label);
+});
+/* ============================ /BRIAN RESPONSE ============================ */
 
 // Boot
 renderMessages();
