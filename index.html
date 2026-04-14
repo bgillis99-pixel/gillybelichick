@@ -206,6 +206,20 @@
     .sun-glow { animation: sunGlow 7s ease-in-out infinite; transform-origin: 280px 75px; }
     @keyframes sunGlow { 0%,100% { opacity: .88; } 50% { opacity: 1; transform: scale(1.04); } }
 
+    /* Samantha workload states: hair-down (calm) vs hair-up (buried) */
+    .hair-up, .accessories-busy { display: none; }
+    .scene.busy .hair-down { display: none; }
+    .scene.busy .hair-up, .scene.busy .accessories-busy { display: block; }
+    .scene.busy .sam-breath { animation-duration: 3.2s; }
+    /* Subtle status text overlay when busy */
+    .scene-status { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; color: var(--coral); font-weight: 600; letter-spacing: .02em;
+      background: rgba(255,255,255,.85); padding: 3px 10px; border-radius: 999px;
+      opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .scene.busy .scene-status { opacity: 1; }
+    .scene.compact .scene-status { display: none; }
+
     /* Speech bubble connector for Samantha's messages - looks like it emerges from her */
     .msg.sam .bubble { position: relative; }
     .msg.sam:first-of-type .bubble::before {
@@ -249,6 +263,7 @@
 
   <div class="scene" id="scene">
     <button class="scene-toggle" id="sceneToggle" title="Collapse scene" aria-label="Toggle scene">−</button>
+    <div class="scene-status" id="sceneStatus">heads down · full plate</div>
     <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
         <radialGradient id="roomGlow" cx="50%" cy="35%" r="75%">
@@ -355,21 +370,51 @@
         <!-- Neck shadow -->
         <path d="M 192 134 Q 200 138 208 134" fill="none" stroke="#D4A87A" stroke-width="0.6" opacity="0.5"/>
 
-        <!-- Hair back layer (falls past shoulders) -->
-        <path d="M 170 105 Q 162 130 158 158 Q 170 148 178 145 L 178 115 Z" fill="url(#hair)"/>
-        <path d="M 230 105 Q 238 130 242 158 Q 230 148 222 145 L 222 115 Z" fill="url(#hair)"/>
+        <!-- Hair back layer (long, down): falls past shoulders -->
+        <g class="hair-down">
+          <path d="M 170 105 Q 162 130 158 158 Q 170 148 178 145 L 178 115 Z" fill="url(#hair)"/>
+          <path d="M 230 105 Q 238 130 242 158 Q 230 148 222 145 L 222 115 Z" fill="url(#hair)"/>
+        </g>
 
         <!-- Head -->
         <ellipse cx="200" cy="108" rx="20" ry="22" fill="url(#skin)"/>
         <!-- Jaw shadow -->
         <path d="M 186 120 Q 200 132 214 120" fill="none" stroke="#D4A87A" stroke-width="0.6" opacity="0.35"/>
 
-        <!-- Hair front: soft side-swept blonde -->
-        <path d="M 179 108 Q 178 88 192 84 Q 204 82 215 85 Q 222 90 221 105 Q 220 96 212 93 Q 205 92 200 95 Q 194 100 189 106 Q 185 111 182 112 Q 179 111 179 108 Z" fill="url(#hair)"/>
-        <!-- Hair highlight -->
-        <path d="M 184 94 Q 192 88 204 86" fill="none" stroke="#F5E0A0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
-        <!-- Side strand -->
-        <path d="M 221 105 Q 225 118 223 130" fill="none" stroke="#D4A857" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Hair front DOWN: soft side-swept blonde -->
+        <g class="hair-down">
+          <path d="M 179 108 Q 178 88 192 84 Q 204 82 215 85 Q 222 90 221 105 Q 220 96 212 93 Q 205 92 200 95 Q 194 100 189 106 Q 185 111 182 112 Q 179 111 179 108 Z" fill="url(#hair)"/>
+          <!-- Hair highlight -->
+          <path d="M 184 94 Q 192 88 204 86" fill="none" stroke="#F5E0A0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+          <!-- Side strand -->
+          <path d="M 221 105 Q 225 118 223 130" fill="none" stroke="#D4A857" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+
+        <!-- Hair UP (bun, when busy): pulled back, couple of loose strands, pencil tucked in -->
+        <g class="hair-up">
+          <!-- Smooth pulled-back hair on sides -->
+          <path d="M 180 108 Q 181 92 194 86 Q 207 84 218 88 Q 222 94 220 104 Q 216 98 208 95 Q 200 94 192 98 Q 184 102 180 108 Z" fill="url(#hair)"/>
+          <!-- Subtle sheen -->
+          <path d="M 187 92 Q 197 88 212 90" fill="none" stroke="#F5E0A0" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <!-- The bun (behind/above head) -->
+          <ellipse cx="200" cy="82" rx="13" ry="10" fill="url(#hair)"/>
+          <ellipse cx="200" cy="82" rx="13" ry="10" fill="none" stroke="#A07E3C" stroke-width="0.6" opacity="0.5"/>
+          <!-- Bun highlight -->
+          <path d="M 192 78 Q 200 74 208 78" fill="none" stroke="#F5E0A0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+          <!-- Pencil tucked through the bun -->
+          <rect x="190" y="72" width="22" height="2" fill="#E8725A" rx="0.5" transform="rotate(18 201 73)"/>
+          <rect x="208" y="69" width="3" height="2" fill="#F4D03F" transform="rotate(18 209.5 70)"/>
+          <!-- A couple of escaped strands near the face (relaxed but working) -->
+          <path d="M 182 105 Q 179 115 180 126" fill="none" stroke="#D4A857" stroke-width="1.8" stroke-linecap="round" opacity="0.85"/>
+          <path d="M 218 105 Q 221 114 220 124" fill="none" stroke="#D4A857" stroke-width="1.8" stroke-linecap="round" opacity="0.85"/>
+        </g>
+
+        <!-- Busy accessories: reading glasses -->
+        <g class="accessories-busy">
+          <circle cx="193" cy="107" r="5" fill="none" stroke="#2D2D2D" stroke-width="1"/>
+          <circle cx="207" cy="107" r="5" fill="none" stroke="#2D2D2D" stroke-width="1"/>
+          <line x1="198" y1="107" x2="202" y2="107" stroke="#2D2D2D" stroke-width="1"/>
+        </g>
 
         <!-- Eyebrows -->
         <path d="M 189 101 Q 193 99.5 196 101" fill="none" stroke="#A07E3C" stroke-width="1.2" stroke-linecap="round"/>
@@ -674,6 +719,7 @@ async function sendMessage(text) {
 
   // Show typing
   isLoading = true;
+  updateSamState();
   const typingEl = document.createElement('div');
   typingEl.className = 'msg sam';
   typingEl.innerHTML = '<div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
@@ -718,6 +764,7 @@ async function sendMessage(text) {
     save();
   } finally {
     isLoading = false;
+    updateSamState();
     typingEl.remove();
     renderMessages();
   }
@@ -855,6 +902,22 @@ function updateBoardBadge() {
     boardCount.classList.remove('hidden');
     boardCount.textContent = n > 99 ? '99+' : String(n);
     boardBtn.classList.add('has-items');
+  }
+  updateSamState();
+}
+
+// Visual workload signal: hair up + glasses when buried.
+// Trigger: 6+ open todos OR currently processing a message.
+const sceneStatusEl = document.querySelector('#sceneStatus');
+function updateSamState() {
+  const open = countOpen();
+  const busy = open >= 6 || isLoading;
+  sceneEl.classList.toggle('busy', busy);
+  if (busy) {
+    const msg = isLoading
+      ? (open >= 10 ? 'on it · plate is full' : 'working on it')
+      : (open >= 15 ? 'drowning · pick top 3?' : open >= 10 ? 'a lot on the plate' : 'heads down · focused');
+    sceneStatusEl.textContent = msg;
   }
 }
 
