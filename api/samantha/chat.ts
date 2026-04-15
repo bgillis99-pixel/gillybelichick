@@ -75,7 +75,18 @@ export default async function handler(req: any, res: any) {
     }
 
     if (!process.env.ANTHROPIC_API_KEY) {
-      return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
+      const helpText = "Hey Bryan -- my brain isn't connected yet. The ANTHROPIC_API_KEY environment variable isn't set in Vercel.\n\n" +
+        "Two ways to fix it (~60 seconds either way):\n\n" +
+        "1. **Auto (via GitHub Action)**: visit github.com/bgillis99-pixel/gillybelichick/actions -> open 'Sync Secrets to Vercel' -> 'Run workflow'. This only works if you have GitHub repo secrets named exactly ANTHROPIC_API_KEY and VERCEL_TOKEN.\n\n" +
+        "2. **Manual (fastest)**: visit vercel.com/carbcleantruckcheckapp/gillybelichick/settings/environment-variables -> Add New -> Key = ANTHROPIC_API_KEY, Value = your sk-ant- key, select all 3 environments, Save. Vercel redeploys automatically.\n\n" +
+        "To check status any time, visit gillybelichick.vercel.app/api/samantha/status -- it'll tell you exactly which env vars are set.";
+      return res.status(200).json({
+        text: helpText,
+        tool_calls: null,
+        raw_content: '[]',
+        stop_reason: 'end_turn',
+        _diagnostic: 'ANTHROPIC_API_KEY not configured'
+      });
     }
 
     const anthropic = new Anthropic({

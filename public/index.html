@@ -191,9 +191,9 @@
     .scene { position: relative; width: 100%; height: 180px; overflow: hidden;
       background: linear-gradient(180deg, #FFF2E0 0%, #FDE4C8 100%);
       border-bottom: 1px solid rgba(232,114,90,.12); transition: height .35s ease; flex-shrink: 0; }
-    .scene.compact { height: 72px; }
-    .scene svg { width: 100%; height: 100%; display: block; transition: transform .35s ease; transform-origin: 50% 55%; }
-    .scene.compact svg { transform: scale(1.4) translateY(24%); }
+    .scene.compact { height: 96px; }
+    .scene svg { width: 100%; height: 100%; display: block; transition: transform .35s ease; transform-origin: 50% 54%; }
+    /* In compact mode the SVG natural slice already centers on her face -- no transform needed */
     .scene-toggle { position: absolute; top: 6px; right: 8px; width: 24px; height: 24px;
       border-radius: 50%; background: rgba(255,255,255,.6); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center; color: var(--muted);
@@ -706,7 +706,16 @@ function renderCard(r) {
   return '';
 }
 
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function esc(s) {
+  let out = (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // Auto-link URLs (http/https)
+  out = out.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--coral);text-decoration:underline">$1</a>');
+  // Markdown-style **bold**
+  out = out.replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
+  // Newlines
+  out = out.replace(/\n/g,'<br>');
+  return out;
+}
 
 // Send
 async function sendMessage(text) {
