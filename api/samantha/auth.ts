@@ -127,7 +127,7 @@ function authorizePage(authUrl: string, redirectUri: string): string {
 </div>`);
 }
 
-function successPage(refreshToken: string, accessToken: string): string {
+function successPage(refreshToken: string, _accessToken: string): string {
   if (!refreshToken) {
     return page('Samantha · Token Missing', `
 <div class="error">No refresh token returned.</div>
