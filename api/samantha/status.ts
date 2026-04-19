@@ -23,6 +23,7 @@ export default async function handler(req: any, res: any) {
       FMCSA_API_KEY: mask(process.env.FMCSA_API_KEY),
       ASANA_ACCESS_TOKEN: mask(process.env.ASANA_ACCESS_TOKEN),
       CLOUDFLARE_D1_TOKEN: mask(process.env.CLOUDFLARE_D1_TOKEN),
+      ELEVENLABS_API_KEY: mask(process.env.ELEVENLABS_API_KEY),
     },
     samantha_ready: Boolean(process.env.ANTHROPIC_API_KEY),
     next_step: process.env.ANTHROPIC_API_KEY

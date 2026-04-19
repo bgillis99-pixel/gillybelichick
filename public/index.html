@@ -713,20 +713,53 @@ function pickBestVoice() {
   return voices.find(v => /^en/i.test(v.lang)) || voices[0];
 }
 let _voiceCache = null;
-function speak(text) {
-  if (!voiceEnabled || !window.speechSynthesis) return;
+let _audioEl = null;
+
+function speakBrowserTTS(clean) {
+  if (!window.speechSynthesis) return;
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  const u = new SpeechSynthesisUtterance(clean);
   const v = _voiceCache || pickBestVoice();
   if (v) { _voiceCache = v; u.voice = v; u.lang = v.lang || 'en-US'; }
-  u.rate = 1.0;
-  u.pitch = 1.0;
-  u.volume = 1.0;
+  u.rate = 1.0; u.pitch = 1.0; u.volume = 1.0;
   speechSynthesis.speak(u);
 }
+
+async function speak(text) {
+  if (!voiceEnabled) return;
+  if (_audioEl) { _audioEl.pause(); _audioEl = null; }
+  if (window.speechSynthesis) speechSynthesis.cancel();
+
+  const clean = (text || '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/[#*_~`]/g, '').trim();
+  if (!clean) return;
+
+  try {
+    const res = await fetch('/api/samantha/voice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: clean })
+    });
+    if (!res.ok) throw new Error('voice endpoint error');
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('audio')) {
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      _audioEl = new Audio(url);
+      _audioEl.onended = () => { URL.revokeObjectURL(url); _audioEl = null; };
+      await _audioEl.play();
+      return;
+    }
+  } catch (e) { /* fall through to browser TTS */ }
+
+  speakBrowserTTS(clean);
+}
+
 if (window.speechSynthesis) {
   speechSynthesis.onvoiceschanged = () => { _voiceCache = pickBestVoice(); };
-  // Prime the voice cache now in case voices are already loaded.
   _voiceCache = pickBestVoice();
 }
 
