@@ -3,6 +3,7 @@
   "framework": null,
   "outputDirectory": "public",
   "rewrites": [
+    { "source": "/api/samantha/auth", "destination": "/api/samantha/status?auth" },
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ]
 }
