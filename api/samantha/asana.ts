@@ -7,7 +7,7 @@ export const config = {
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
-async function d1Query(sql: string, params?: string[]) {
+async function d1Query(sql: string, params?: (string | null)[]) {
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const apiToken = process.env.CLOUDFLARE_API_TOKEN;
   const dbId = process.env.CLOUDFLARE_BLOG_DB_ID || '2b97a692-278b-4926-ba68-808e775beb2e';
