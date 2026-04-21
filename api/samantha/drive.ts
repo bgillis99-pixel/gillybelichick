@@ -45,7 +45,8 @@ async function extractText(drive: any, fileId: string, mimeType: string): Promis
     const buf = Buffer.from(r.data as ArrayBuffer);
     // Import from the lib path, not the package index -- the index does
     // a debug read of a bundled test PDF at require time which fails in
-    // some serverless bundlers.
+    // some serverless bundlers. pdf-parse ships no types.
+    // @ts-expect-error pdf-parse has no bundled type declarations
     const pdfParse = (await import('pdf-parse/lib/pdf-parse.js')).default;
     const parsed = await pdfParse(buf);
     return parsed.text;
