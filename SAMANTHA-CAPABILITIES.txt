@@ -240,13 +240,18 @@ Why it matters:
   Chalkboard: Browser localStorage (300-item cap)
 
   Domain:     gillybelichick.vercel.app (live)
-              bryanoneillgillis.com (purchased, needs to be added in
-              Vercel dashboard -> Project -> Settings -> Domains)
+              bryanoneillgillis.com (live, attached to Vercel project)
 
-  Auto-env-sync: GitHub Action (.github/workflows/sync-vercel-secrets.yml)
-                 Pushes ANTHROPIC_API_KEY from GitHub secrets to Vercel
-                 on any workflow file change. Requires VERCEL_TOKEN and
-                 ANTHROPIC_API_KEY as GitHub repo secrets.
+  Status page: /api/samantha/status
+               Single source of truth when something's off. Shows every
+               accepted Anthropic key name, validates format, links to
+               Vercel env vars, offers one-tap redeploy (if the optional
+               VERCEL_DEPLOY_HOOK_URL env var is set).
+
+  Anthropic key naming: Samantha accepts any of these env var names --
+                        ANTHROPIC_API_KEY, CLAUDE_API_KEY, SAMANTHA_API_KEY,
+                        SAMANTHA, CLAUDE, ANTHROPIC_KEY. First match wins.
+                        You never have to rename things in Vercel.
 
 
 ================================================================================
@@ -355,19 +360,25 @@ breakpoints. Build when ready.
               WHEN SHE'S NOT WORKING ("check your connection")
 ================================================================================
 
-Cause 99% of the time: ANTHROPIC_API_KEY is missing from Vercel env vars.
+Cause 99% of the time: Samantha can't find an Anthropic API key in any
+of the env var names she accepts.
 
-Fix path A (automatic - preferred):
-  Visit github.com/bgillis99-pixel/gillybelichick/actions ->
-  Run or re-run "Sync Secrets to Vercel" workflow. It reads the
-  secret from GitHub and pushes it to Vercel.
-  Prereq: secrets named VERCEL_TOKEN and ANTHROPIC_API_KEY must exist
-  in the GitHub repo settings.
+One-step fix:
 
-Fix path B (manual):
-  vercel.com/carbcleantruckcheckapp/gillybelichick/settings/environment-variables
-  Add ANTHROPIC_API_KEY = sk-ant-... (all 3 environments). Vercel auto-
-  redeploys.
+  Open bryanoneillgillis.com/api/samantha/status on your phone.
+
+That page tells you exactly what's missing, highlights which env var
+name is in use (if any), warns if the key looks malformed, and gives
+you a one-tap deep link to Vercel's env var settings plus -- optionally --
+a "Redeploy production" button.
+
+Accepted key names (pick any one):
+  ANTHROPIC_API_KEY, CLAUDE_API_KEY, SAMANTHA_API_KEY, SAMANTHA, CLAUDE, ANTHROPIC_KEY
+
+Value format: starts with sk-ant- (get one at console.anthropic.com).
+Scope: check all three environments (Production, Preview, Development).
+Redeploy: Vercel auto-redeploys on env var change; or use the button on
+the status page (requires VERCEL_DEPLOY_HOOK_URL to be set once).
 
 
 ================================================================================

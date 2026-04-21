@@ -4,6 +4,26 @@ export const config = {
   maxDuration: 30,
 };
 
+// Bryan names his secrets in plain language ("SAMANTHA", "CLAUDE") rather
+// than engineering ALL_CAPS. Look under any reasonable name so he doesn't
+// have to rename things in the Vercel dashboard.
+const ANTHROPIC_KEY_NAMES = [
+  'ANTHROPIC_API_KEY',
+  'CLAUDE_API_KEY',
+  'SAMANTHA_API_KEY',
+  'SAMANTHA',
+  'CLAUDE',
+  'ANTHROPIC_KEY',
+];
+
+function getAnthropicKey(): string | undefined {
+  for (const n of ANTHROPIC_KEY_NAMES) {
+    const v = process.env[n];
+    if (v && v.trim()) return v.trim();
+  }
+  return undefined;
+}
+
 // System prompt and tools are inlined here because Vercel serverless
 // functions cannot import from ../../src/ (those are frontend files
 // bundled by Vite, not available to the Node.js runtime).
@@ -74,23 +94,21 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-      const helpText = "Hey Bryan -- my brain isn't connected yet. The ANTHROPIC_API_KEY environment variable isn't set in Vercel.\n\n" +
-        "Two ways to fix it (~60 seconds either way):\n\n" +
-        "1. **Auto (via GitHub Action)**: visit github.com/bgillis99-pixel/gillybelichick/actions -> open 'Sync Secrets to Vercel' -> 'Run workflow'. This only works if you have GitHub repo secrets named exactly ANTHROPIC_API_KEY and VERCEL_TOKEN.\n\n" +
-        "2. **Manual (fastest)**: visit vercel.com/carbcleantruckcheckapp/gillybelichick/settings/environment-variables -> Add New -> Key = ANTHROPIC_API_KEY, Value = your sk-ant- key, select all 3 environments, Save. Vercel redeploys automatically.\n\n" +
-        "To check status any time, visit gillybelichick.vercel.app/api/samantha/status -- it'll tell you exactly which env vars are set.";
+    const anthropicKey = getAnthropicKey();
+    if (!anthropicKey) {
+      const helpText = "Hey Bryan -- my brain isn't connected yet. Tap this on your phone and it'll tell you exactly what's wrong and how to fix it:\n\n" +
+        "bryanoneillgillis.com/api/samantha/status";
       return res.status(200).json({
         text: helpText,
         tool_calls: null,
         raw_content: '[]',
         stop_reason: 'end_turn',
-        _diagnostic: 'ANTHROPIC_API_KEY not configured'
+        _diagnostic: 'Anthropic key not found under any accepted name'
       });
     }
 
     const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
+      apiKey: anthropicKey,
     });
 
     const anthropicMessages = messages.map((m: { role: string; content: string }) => ({
