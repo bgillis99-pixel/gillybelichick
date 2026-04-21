@@ -36,6 +36,7 @@ const SCOPES = [
   'https://www.googleapis.com/auth/gmail.readonly',
   'https://www.googleapis.com/auth/gmail.compose',
   'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/drive.readonly',
 ];
 
 function getRedirectUri(req: any): string {
@@ -77,21 +78,21 @@ function setupPage(redirectUri: string): string {
 <div class="card">
   <h2>Step 1: Create Google Cloud credentials</h2>
   <ol>
-    <li>Go to <a href="https://console.cloud.google.com/projectcreate" target="_blank">console.cloud.google.com</a> and create a project (name it anything, e.g. "Samantha")</li>
-    <li>In that project, go to <b>APIs & Services → Library</b>:<br>
-      &bull; Search and enable <b>Gmail API</b><br>
-      &bull; Search and enable <b>Google Calendar API</b></li>
-    <li>Go to <b>APIs & Services → OAuth consent screen</b>:<br>
-      &bull; User type: <b>External</b>, click Create<br>
-      &bull; App name: "Samantha", your email for support<br>
-      &bull; Add scopes: <code>gmail.readonly</code>, <code>gmail.compose</code>, <code>calendar</code><br>
-      &bull; Add <b>Test users</b>: <code>admin@mobilecarbsmoketest.com</code> and <code>bryan@norcalcarbmobile.com</code><br>
+    <li>Go to <a href="https://console.cloud.google.com/projectcreate" target="_blank">console.cloud.google.com</a> and create a project named "Samantha".</li>
+    <li><b>APIs & Services → Library</b>, enable all four:<br>
+      &bull; <b>Gmail API</b><br>
+      &bull; <b>Google Calendar API</b><br>
+      &bull; <b>Google Drive API</b></li>
+    <li><b>APIs & Services → OAuth consent screen</b>:<br>
+      &bull; User type: <b>Internal</b> (since <code>samantha@norcalcarbmobile.com</code> is in your own Workspace org — no test-user approval needed)<br>
+      &bull; App name: "Samantha", support email: <code>bryan@norcalcarbmobile.com</code><br>
+      &bull; Scopes: <code>gmail.readonly</code>, <code>gmail.compose</code>, <code>calendar</code>, <code>drive.readonly</code><br>
       &bull; Save</li>
-    <li>Go to <b>APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID</b>:<br>
+    <li><b>Credentials → Create Credentials → OAuth 2.0 Client ID</b>:<br>
       &bull; Application type: <b>Web application</b><br>
       &bull; Name: "Samantha"<br>
       &bull; Authorized redirect URI: <code>${redirectUri}</code><br>
-      &bull; Click Create, copy <b>Client ID</b> and <b>Client Secret</b></li>
+      &bull; Create, copy the <b>Client ID</b> and <b>Client Secret</b></li>
   </ol>
 </div>
 <div class="card">
@@ -103,7 +104,7 @@ function setupPage(redirectUri: string): string {
 </div>
 <div class="card">
   <h2>Step 3: Come back here</h2>
-  <p>After the redeploy, refresh this page. You'll see an "Authorize" button to connect your Google account.</p>
+  <p>After the redeploy, refresh this page. You'll see an "Authorize Samantha" button.</p>
 </div>`);
 }
 

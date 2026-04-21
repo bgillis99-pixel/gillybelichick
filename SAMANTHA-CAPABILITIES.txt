@@ -1,30 +1,38 @@
 
 ================================================================================
-                    SAMANTHA - PERSONAL AI COMMAND CENTER
-                         Capability Sheet v1.1
+                    SAMANTHA GILLIS - FIRST EMPLOYEE
+                         Capability Sheet v1.2
                          Bryan O'Neill Gillis
                          NorCal CARB Mobile LLC
                          Updated: April 2026
 ================================================================================
 
-WHAT IS SAMANTHA?
------------------
-Samantha is Bryan's personal AI command center -- a web app (PWA) that
-installs to his phone home screen. She's powered by Claude (Anthropic's
-Sonnet model), visualized as a warm blonde businesswoman sitting across
-from him at a conference table, and acts as his whole operations brain:
-schedule, email, customers, invoicing, compliance, projects, and a live
+WHO IS SAMANTHA?
+----------------
+Samantha Gillis is Bryan's first "employee" at NorCal CARB Mobile. She's
+a real Google Workspace user (samantha@norcalcarbmobile.com, aliased as
+admin@norcalcarbmobile.com). She lives on Bryan's phone as a PWA, powered
+by Claude (Anthropic's Sonnet model), and runs the business: schedule,
+email, Drive, customers, invoicing, compliance, projects, and a live
 to-do chalkboard.
 
 Think: Q from James Bond meets a smart friend who knows your entire
 business, your codebase, your customers, CARB regulations, and your
 workload -- and she reads YOU as much as you read her.
 
+HOW SHE ACCESSES THINGS:
+ - Calendar defaults to Bryan's (bryan@norcalcarbmobile.com), shared to her
+ - Gmail defaults to Bryan's inbox via Workspace delegation
+ - Drive sees her own files plus anything shared with samantha@ --
+   including folders Bryan shares from his personal bgillis99@gmail.com
+ - Reads Google Docs, Sheets, Slides, PDFs, and plain text files
+ - Per-tool override: pass mailbox / calendar_id to hit a different account
+
 Voice in, voice out. Tap-to-answer options. Visual state signals.
 
 
 ================================================================================
-                    25 TOOLS / CAPABILITIES (up from 20)
+                    28 TOOLS / CAPABILITIES
 ================================================================================
 
 CATEGORY 1: SCHEDULE & CALENDAR
@@ -36,16 +44,26 @@ CATEGORY 1: SCHEDULE & CALENDAR
 4. get_upcoming_retests      - "Who's due for retesting?"
 
 
-CATEGORY 2: EMAIL (Gmail)
---------------------------
-5. search_emails   - Search your inbox
+CATEGORY 2: EMAIL (Gmail -- delegated to Bryan's inbox by default)
+-------------------------------------------------------------------
+5. search_emails   - Search Bryan's inbox (or samantha@ via mailbox param)
 6. read_email      - Read full email content
-7. draft_email     - Compose emails in your voice
+7. draft_email     - Compose emails in Bryan's outbox or Samantha's
 
 
-CATEGORY 3: COMPANY LOOKUP (FMCSA)
+CATEGORY 3: DRIVE (Google Drive -- Samantha's account + shared)
+----------------------------------------------------------------
+8. search_drive    - Find files by name or content across everything
+                      she has access to, including Bryan's shared folders
+                      from bgillis99@gmail.com
+9. list_drive_files - Browse her root + things shared with her
+10. read_drive_file - Open Google Docs, Sheets (CSV), Slides, PDFs,
+                      plain text. Used after search_drive.
+
+
+CATEGORY 4: COMPANY LOOKUP (FMCSA)
 -----------------------------------
-8. lookup_company  - Look up any trucking company by name, DOT#, or MC#
+11. lookup_company  - Look up any trucking company by name, DOT#, or MC#
 
 
 CATEGORY 4: MAPS & DIRECTIONS (Google Maps)
