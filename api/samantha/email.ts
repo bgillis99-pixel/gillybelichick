@@ -136,6 +136,45 @@ export default async function handler(req: any, res: any) {
       });
     }
 
+    if (action === 'archive_email') {
+      const { message_id } = params;
+
+      await gmail.users.messages.modify({
+        userId: 'me',
+        id: message_id,
+        requestBody: { removeLabelIds: ['INBOX'] },
+      });
+
+      return res.status(200).json({
+        archived: 1,
+        message_id,
+        message: 'Archived (removed from INBOX, still in All Mail)',
+      });
+    }
+
+    if (action === 'archive_emails') {
+      const { message_ids } = params;
+      if (!Array.isArray(message_ids) || message_ids.length === 0) {
+        return res.status(400).json({ error: 'message_ids must be a non-empty array' });
+      }
+      // Gmail batchModify caps at 1000 ids per call; stay well under.
+      const ids = message_ids.slice(0, 100);
+
+      await gmail.users.messages.batchModify({
+        userId: 'me',
+        requestBody: {
+          ids,
+          removeLabelIds: ['INBOX'],
+        },
+      });
+
+      return res.status(200).json({
+        archived: ids.length,
+        message_ids: ids,
+        message: `Archived ${ids.length} email${ids.length === 1 ? '' : 's'} (still searchable in All Mail)`,
+      });
+    }
+
     return res.status(400).json({ error: `Unknown action: ${action}` });
   } catch (error: any) {
     console.error('Email API error:', error);
