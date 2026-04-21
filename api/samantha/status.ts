@@ -4,6 +4,26 @@ export const config = { maxDuration: 10 };
 
 // ── Status dashboard ──
 
+// Bryan names his secrets in plain language ("SAMANTHA", "CLAUDE") rather
+// than engineering ALL_CAPS. Look under any reasonable name so he doesn't
+// have to rename things in the Vercel dashboard.
+const ANTHROPIC_KEY_NAMES = [
+  'ANTHROPIC_API_KEY',
+  'CLAUDE_API_KEY',
+  'SAMANTHA_API_KEY',
+  'SAMANTHA',
+  'CLAUDE',
+  'ANTHROPIC_KEY',
+];
+
+function getAnthropicKeySource(): { name: string; value: string } | undefined {
+  for (const n of ANTHROPIC_KEY_NAMES) {
+    const v = process.env[n];
+    if (v && v.trim()) return { name: n, value: v.trim() };
+  }
+  return undefined;
+}
+
 function mask(v: string | undefined): string {
   if (!v) return 'NOT SET';
   if (v.length < 8) return 'SET (short)';
@@ -186,6 +206,25 @@ async function handleAuth(req: any, res: any) {
   return res.status(200).send(authorizePage(authUrl, redirectUri));
 }
 
+// ── Deploy hook trigger (one-tap redeploy from the status page) ──
+
+async function triggerRedeploy(res: any) {
+  const hook = process.env.VERCEL_DEPLOY_HOOK_URL;
+  if (!hook) {
+    return res.status(400).json({
+      ok: false,
+      error: 'VERCEL_DEPLOY_HOOK_URL not set. Create a Deploy Hook in Vercel → Settings → Git → Deploy Hooks, then paste the URL as an env var.',
+    });
+  }
+  try {
+    const r = await fetch(hook, { method: 'POST' });
+    const body = await r.text();
+    return res.status(r.ok ? 200 : 502).json({ ok: r.ok, status: r.status, response: body.slice(0, 500) });
+  } catch (err: any) {
+    return res.status(502).json({ ok: false, error: err.message });
+  }
+}
+
 // ── Main handler ──
 
 export default async function handler(req: any, res: any) {
@@ -193,12 +232,31 @@ export default async function handler(req: any, res: any) {
     return handleAuth(req, res);
   }
 
+  if (req.query?.action === 'redeploy') {
+    return triggerRedeploy(res);
+  }
+
+  const keyInfo = getAnthropicKeySource();
+  const keyLooksValid = keyInfo ? keyInfo.value.startsWith('sk-ant-') : false;
+  const deployHookSet = Boolean(process.env.VERCEL_DEPLOY_HOOK_URL);
+
+  // Show every Anthropic-key name we'll accept so Bryan can see his own
+  // naming is covered.
+  const anthropicRows: Record<string, string> = {};
+  for (const n of ANTHROPIC_KEY_NAMES) {
+    anthropicRows[n] = mask(process.env[n]);
+  }
+
   const state = {
     timestamp: new Date().toISOString(),
     environment: process.env.VERCEL_ENV || 'unknown',
     region: process.env.VERCEL_REGION || 'unknown',
+    commit: (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7) || 'unknown',
+    commit_message: process.env.VERCEL_GIT_COMMIT_MESSAGE || '',
+    anthropic_key_source: keyInfo?.name || null,
+    anthropic_key_looks_valid: keyLooksValid,
     env_vars: {
-      ANTHROPIC_API_KEY: mask(process.env.ANTHROPIC_API_KEY),
+      ...anthropicRows,
       GOOGLE_CLIENT_ID: mask(process.env.GOOGLE_CLIENT_ID),
       GOOGLE_CLIENT_SECRET: mask(process.env.GOOGLE_CLIENT_SECRET),
       GOOGLE_REFRESH_TOKEN: mask(process.env.GOOGLE_REFRESH_TOKEN),
@@ -208,28 +266,70 @@ export default async function handler(req: any, res: any) {
       CLOUDFLARE_API_TOKEN: mask(process.env.CLOUDFLARE_API_TOKEN),
       CLOUDFLARE_D1_TOKEN: mask(process.env.CLOUDFLARE_D1_TOKEN),
       ELEVENLABS_API_KEY: mask(process.env.ELEVENLABS_API_KEY),
+      VERCEL_DEPLOY_HOOK_URL: mask(process.env.VERCEL_DEPLOY_HOOK_URL),
     },
-    samantha_ready: Boolean(process.env.ANTHROPIC_API_KEY),
-    next_step: process.env.ANTHROPIC_API_KEY
-      ? 'Ready. Open gillybelichick.vercel.app and chat with Samantha.'
-      : 'Add ANTHROPIC_API_KEY in Vercel: vercel.com/carbcleantruckcheckapp/gillybelichick/settings/environment-variables',
+    samantha_ready: Boolean(keyInfo),
   };
 
   if (req.query?.format === 'json') {
     return res.status(200).json(state);
   }
 
-  const row = (k: string, v: string) => {
+  const row = (k: string, v: string, highlight: boolean = false) => {
     const ok = !v.startsWith('NOT');
     const color = ok ? '#4ade80' : '#ef4444';
     const icon = ok ? '✓' : '✗';
-    return `<tr><td style="padding:8px 12px;border-bottom:1px solid #f0e6d5"><code>${k}</code></td><td style="padding:8px 12px;border-bottom:1px solid #f0e6d5;color:${color}"><b>${icon}</b> ${v}</td></tr>`;
+    const bg = highlight ? 'background:#FFF3D6;' : '';
+    return `<tr><td style="padding:8px 12px;border-bottom:1px solid #f0e6d5;${bg}"><code>${k}</code></td><td style="padding:8px 12px;border-bottom:1px solid #f0e6d5;color:${color};${bg}"><b>${icon}</b> ${v}</td></tr>`;
   };
 
   const ready = state.samantha_ready;
-  const bannerBg = ready ? '#dcfce7' : '#fee2e2';
-  const bannerColor = ready ? '#166534' : '#991b1b';
-  const bannerText = ready ? '✓ Samantha is ready' : '✗ Samantha needs ANTHROPIC_API_KEY';
+  const formatWarn = keyInfo && !keyLooksValid;
+
+  let bannerBg = '#dcfce7';
+  let bannerColor = '#166534';
+  let bannerText = `✓ Samantha is ready · key found under <code>${keyInfo?.name}</code>`;
+  if (!ready) {
+    bannerBg = '#fee2e2';
+    bannerColor = '#991b1b';
+    bannerText = '✗ Samantha has no Anthropic key in any accepted env var';
+  } else if (formatWarn) {
+    bannerBg = '#FEF3CD';
+    bannerColor = '#856404';
+    bannerText = `⚠ Key found under <code>${keyInfo?.name}</code> but doesn't start with <code>sk-ant-</code> — likely wrong key pasted`;
+  }
+
+  const tableRows = Object.entries(state.env_vars)
+    .map(([k, v]) => row(k, v, k === keyInfo?.name))
+    .join('');
+
+  const howToFix = ready ? '' : `
+<div class="fix">
+  <h3>How to fix (~60 seconds)</h3>
+  <ol>
+    <li>Tap <a class="btn" href="https://vercel.com/carbcleantruckcheckapp/gillybelichick/settings/environment-variables" target="_blank">Open Vercel env vars →</a></li>
+    <li><b>Add New</b>. Key name: any of <code>ANTHROPIC_API_KEY</code>, <code>CLAUDE</code>, <code>SAMANTHA</code>, <code>CLAUDE_API_KEY</code>, <code>SAMANTHA_API_KEY</code>. Samantha will find it under any of these.</li>
+    <li>Value: your key that starts with <code>sk-ant-</code> (get one at <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>).</li>
+    <li>Check <b>all three</b> environments (Production, Preview, Development). Save.</li>
+    <li>Redeploy — ${deployHookSet ? 'tap the button below' : 'Vercel → Deployments → latest → ⋯ → Redeploy. Or push any commit. (Tip: set <code>VERCEL_DEPLOY_HOOK_URL</code> to enable one-tap redeploy from this page.)'}</li>
+  </ol>
+</div>`;
+
+  const redeployButton = deployHookSet
+    ? `<button class="btn redeploy" onclick="redeploy()">Redeploy production now</button>
+       <div id="redeploy-status"></div>
+       <script>
+       async function redeploy() {
+         const s = document.getElementById('redeploy-status');
+         s.textContent = 'Triggering redeploy...';
+         try {
+           const r = await fetch('?action=redeploy', { method: 'POST' });
+           const j = await r.json();
+           s.textContent = j.ok ? '✓ Redeploy triggered. Refresh in ~45s to verify.' : '✗ ' + (j.error || 'Failed');
+         } catch (e) { s.textContent = '✗ Network error'; }
+       }
+       </script>`
+    : `<div class="hint">Set <code>VERCEL_DEPLOY_HOOK_URL</code> in Vercel env vars to enable one-tap redeploy. Create the URL at Vercel → Settings → Git → Deploy Hooks.</div>`;
 
   const html = `<!DOCTYPE html>
 <html><head><title>Samantha Status</title><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -238,22 +338,34 @@ body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; backg
 .wrap { max-width:600px; margin:0 auto; }
 h1 { font-size:22px; margin:0 0 4px; }
 .sub { color:#8B8B8B; font-size:13px; margin-bottom:20px; }
-.banner { padding:16px; border-radius:12px; margin-bottom:20px; background:${bannerBg}; color:${bannerColor}; font-weight:600; }
+.banner { padding:16px; border-radius:12px; margin-bottom:20px; background:${bannerBg}; color:${bannerColor}; font-weight:600; font-size:14px; line-height:1.5; }
+.banner code { background:rgba(0,0,0,.08); padding:1px 5px; border-radius:4px; }
 table { width:100%; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.06); font-size:14px; border-collapse:collapse; }
-td:first-child { color:#E8725A; font-weight:500; width:40%; }
+td:first-child { color:#E8725A; font-weight:500; width:50%; }
 code { font-family:"SF Mono",Monaco,monospace; font-size:13px; }
-.next { background:#fff; padding:16px; border-radius:12px; margin-top:20px; border-left:4px solid #E8725A; }
-.next h3 { margin:0 0 8px; font-size:14px; }
-.next p { margin:0; font-size:14px; line-height:1.5; }
+.fix { background:#fff; padding:16px 20px; border-radius:12px; margin-top:20px; border-left:4px solid #E8725A; }
+.fix h3 { margin:0 0 10px; font-size:15px; }
+.fix ol { padding-left:20px; margin:0; }
+.fix li { font-size:14px; line-height:1.7; margin:6px 0; }
+.btn { display:inline-block; background:#E8725A; color:#fff; padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px; border:none; cursor:pointer; margin:8px 0; }
+.btn:hover { opacity:.9; }
+.btn.redeploy { background:#2D2D2D; margin-top:16px; }
+.hint { margin-top:12px; font-size:13px; color:#8B8B8B; line-height:1.5; }
+#redeploy-status { margin-top:8px; font-size:13px; }
 a { color:#E8725A; word-break:break-all; }
-.meta { margin-top:20px; color:#8B8B8B; font-size:12px; }
+.meta { margin-top:20px; color:#8B8B8B; font-size:12px; line-height:1.6; }
 </style></head><body><div class="wrap">
 <h1>Samantha · Status</h1>
 <div class="sub">Environment: ${state.environment} · Region: ${state.region}</div>
 <div class="banner">${bannerText}</div>
-<table>${Object.entries(state.env_vars).map(([k, v]) => row(k, v)).join('')}</table>
-<div class="next"><h3>Next step</h3><p>${ready ? state.next_step : `Go to <a href="https://vercel.com/carbcleantruckcheckapp/gillybelichick/settings/environment-variables">Vercel env var settings</a>, add <code>ANTHROPIC_API_KEY</code> = your sk-ant- key across all 3 environments, save. Redeploy happens automatically.`}</p></div>
-<div class="meta">Checked at ${state.timestamp}<br>For JSON: <a href="?format=json">?format=json</a> · <a href="?auth">Google Auth Setup</a></div>
+<table>${tableRows}</table>
+${howToFix}
+<div class="fix"><h3>Redeploy</h3>${redeployButton}</div>
+<div class="meta">
+Commit: <code>${state.commit}</code>${state.commit_message ? ' · ' + state.commit_message.split('\n')[0].slice(0, 80) : ''}<br>
+Checked at ${state.timestamp}<br>
+JSON: <a href="?format=json">?format=json</a> · <a href="?auth">Google Auth Setup</a>
+</div>
 </div></body></html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');

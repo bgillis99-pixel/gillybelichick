@@ -23,7 +23,7 @@ Future domain: `bryanoneillgillis.com` (purchased on Vercel, not yet added to th
 - **Backend**: Vercel serverless functions in `/api/samantha/`:
   - `chat.ts` — THE core. Inlines the system prompt AND all tool definitions. Do NOT try to import these from `/src/` — Vercel's Node runtime can't resolve that path and it will 500.
   - `calendar.ts`, `email.ts`, `maps.ts`, `sms.ts`, `company.ts`, `asana.ts`, `blog.ts`, `invoice.ts`, `followup.ts` — one file per tool category.
-- **AI**: Claude Sonnet 4 (`claude-sonnet-4-20250514`) via `@anthropic-ai/sdk`. Single `ANTHROPIC_API_KEY` env var.
+- **AI**: Claude Sonnet 4 (`claude-sonnet-4-20250514`) via `@anthropic-ai/sdk`. The Anthropic key is looked up under any of these env var names (first match wins): `ANTHROPIC_API_KEY`, `CLAUDE_API_KEY`, `SAMANTHA_API_KEY`, `SAMANTHA`, `CLAUDE`, `ANTHROPIC_KEY`. Bryan tends to name things in plain language, so we meet him where he is instead of forcing a canonical name. Lookup logic is inlined in `chat.ts` and `status.ts`.
 
 ## Key files
 
@@ -34,7 +34,7 @@ Future domain: `bryanoneillgillis.com` (purchased on Vercel, not yet added to th
 | `api/samantha/chat.ts` | Claude proxy + system prompt + all 25 tool definitions inlined. |
 | `api/samantha/*.ts` | One serverless function per tool category. |
 | `SAMANTHA-CAPABILITIES.txt` | Printable capability sheet (v1.1). The spec-of-record for what she can do. Update when features land. |
-| `.github/workflows/sync-vercel-secrets.yml` | GitHub Action that syncs `ANTHROPIC_API_KEY` from GitHub secrets -> Vercel env vars. |
+| `api/samantha/status.ts` | Self-diagnosing status page at `/api/samantha/status`. Shows every accepted Anthropic key name, validates the `sk-ant-` format, offers a one-tap redeploy via `VERCEL_DEPLOY_HOOK_URL`. This is the single source of truth when Samantha breaks. Also hosts the Google OAuth flow under `?auth`. |
 | `vercel.json` | Minimal. Just `outputDirectory: "public"` + API rewrites. |
 | `package.json` | Only 2 deps: `@anthropic-ai/sdk`, `googleapis`. Keep it lean. |
 
@@ -66,9 +66,9 @@ Each agent inherits the visual state pattern (hair up/down for Samantha → hard
 
 ## Known blockers / things to check at session start
 
-1. **Is `ANTHROPIC_API_KEY` set in Vercel?** If Samantha says "check your connection," that's the cause. Check via runtime logs (`mcp__357fd93c...__get_runtime_logs`). Fix: push a change to `.github/workflows/sync-vercel-secrets.yml` to re-trigger the sync workflow, OR set it manually in Vercel env vars.
+1. **Is Samantha's Anthropic key set in Vercel?** If Samantha says "my brain isn't connected," send Bryan to `bryanoneillgillis.com/api/samantha/status` — it's the single source of truth. Lists every env var, highlights which Anthropic-key name was used, validates the `sk-ant-` format, links to Vercel settings, and (if `VERCEL_DEPLOY_HOOK_URL` is set) offers a one-tap redeploy. **Never tell Bryan to rename his env var** — the code accepts any of: `ANTHROPIC_API_KEY`, `CLAUDE_API_KEY`, `SAMANTHA_API_KEY`, `SAMANTHA`, `CLAUDE`, `ANTHROPIC_KEY`.
 2. **Is the latest deploy READY in Vercel?** `mcp__357fd93c...__list_deployments` for `prj_GHhK2uoD9LbGCqpEL7OW9Sq5Rkg6` on team `team_KJwr5XAGPJ1qBHmDdkSPZ6pp`.
-3. **Has `bryanoneillgillis.com` been added to the Vercel project?** Currently only `gillybelichick.vercel.app` works. Bryan needs to add the domain in Vercel dashboard.
+3. **Domain** `bryanoneillgillis.com` is attached to the Vercel project. If it stops working, check DNS in whatever registrar Bryan bought it through (Squarespace/Vercel) and the Vercel Domains page.
 
 ## Useful IDs
 
@@ -76,6 +76,17 @@ Each agent inherits the visual state pattern (hair up/down for Samantha → hard
 - Vercel team: `team_KJwr5XAGPJ1qBHmDdkSPZ6pp` (slug: `carbcleantruckcheckapp`)
 - GitHub repo ID: `1106334589`
 - Cloudflare D1 blog DB: `norcal-blog` (ID: `2b97a692-278b-4926-ba68-808e775beb2e`)
+
+## Optional env vars
+
+- `VERCEL_DEPLOY_HOOK_URL` — enables the one-tap "Redeploy production" button on the status page. Create at Vercel → Settings → Git → Deploy Hooks, then paste the URL as this env var.
+
+## Phase 2 / parked follow-ups
+
+- Bryan has Vercel **Pro**. Candidates to consolidate onto Vercel: migrate Cloudflare D1 (`norcal-blog`) to Vercel Postgres; un-merge `auth.ts` from `status.ts` now that the 12-function Hobby limit is gone.
+- Google Voice integration — call/text Bryan from Samantha. Requires Google Voice API access (not broadly available) or a Twilio bridge.
+- Cloudflare expert-level review across sites.
+- Bryan's personality direction: "OpenClaude with boundaries, on steroids" — bigger capability, explicit guardrails.
 
 ## Workflow for edits to Samantha's UI
 
