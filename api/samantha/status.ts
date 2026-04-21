@@ -38,10 +38,37 @@ const SCOPES = [
   'https://www.googleapis.com/auth/calendar',
 ];
 
-function getRedirectUri(req: any): string {
+function getBaseUrl(req: any): string {
+  // SAMANTHA_BASE_URL pins the OAuth redirect URI to a single canonical
+  // host (e.g. https://bryanoneillgillis.com) so it always matches whatever
+  // Bryan registered in Google Cloud Console. Without it, redirect URI
+  // is computed from the request host -- which means visits from
+  // gillybelichick.vercel.app vs bryanoneillgillis.com vs www. subdomains
+  // each produce a different URI, and only one can be registered.
+  const pinned = process.env.SAMANTHA_BASE_URL;
+  if (pinned) return pinned.replace(/\/$/, '');
   const proto = req.headers['x-forwarded-proto'] || 'https';
   const host = req.headers['x-forwarded-host'] || req.headers.host;
-  return `${proto}://${host}/api/samantha/auth`;
+  return `${proto}://${host}`;
+}
+
+function getRedirectUri(req: any): string {
+  return `${getBaseUrl(req)}/api/samantha/auth`;
+}
+
+// Detect when the incoming request is NOT on the pinned canonical host.
+// Returns the canonical URL to redirect to, or null if we're already
+// canonical (or SAMANTHA_BASE_URL isn't set, so dynamic host is fine).
+function nonCanonicalRedirect(req: any): string | null {
+  const pinned = process.env.SAMANTHA_BASE_URL;
+  if (!pinned) return null;
+  const proto = req.headers['x-forwarded-proto'] || 'https';
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
+  const current = `${proto}://${host}`;
+  const canonical = pinned.replace(/\/$/, '');
+  if (current === canonical) return null;
+  const path = req.url || '/api/samantha/status';
+  return `${canonical}${path}`;
 }
 
 function authPage(title: string, body: string): string {
@@ -72,7 +99,19 @@ ${body}
 </div></body></html>`;
 }
 
+function redirectUriBox(redirectUri: string, pinned: boolean): string {
+  const note = pinned
+    ? 'Pinned via <code>SAMANTHA_BASE_URL</code> -- register this ONE URL in Google Cloud and you\'re covered.'
+    : 'Dynamic (based on current host). Set <code>SAMANTHA_BASE_URL</code> in Vercel to pin it to one canonical URL so OAuth never trips on mismatch.';
+  return `
+<div class="warn"><b>Google Cloud requires an EXACT match</b> -- same scheme, host, path. No trailing slash. No <code>www.</code> mismatch. Copy this string and paste it verbatim.</div>
+<div class="big-code" id="redirectUri">${redirectUri}</div>
+<button onclick="navigator.clipboard.writeText(document.getElementById('redirectUri').textContent.trim()).then(()=>this.textContent='Copied!')" style="background:#E8725A;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Copy redirect URI</button>
+<p style="font-size:12px;color:#8B8B8B;margin-top:10px">${note}</p>`;
+}
+
 function setupPage(redirectUri: string): string {
+  const pinned = Boolean(process.env.SAMANTHA_BASE_URL);
   return authPage('Samantha · Google Setup', `
 <div class="card">
   <h2>Step 1: Create Google Cloud credentials</h2>
@@ -82,15 +121,15 @@ function setupPage(redirectUri: string): string {
       &bull; Search and enable <b>Gmail API</b><br>
       &bull; Search and enable <b>Google Calendar API</b></li>
     <li>Go to <b>APIs & Services → OAuth consent screen</b>:<br>
-      &bull; User type: <b>External</b>, click Create<br>
+      &bull; User type: <b>Internal</b> if <code>samantha@norcalcarbmobile.com</code> is in your Workspace org (no test-user approval needed). Otherwise External.<br>
       &bull; App name: "Samantha", your email for support<br>
       &bull; Add scopes: <code>gmail.readonly</code>, <code>gmail.compose</code>, <code>calendar</code><br>
-      &bull; Add <b>Test users</b>: <code>admin@mobilecarbsmoketest.com</code> and <code>bryan@norcalcarbmobile.com</code><br>
       &bull; Save</li>
     <li>Go to <b>APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID</b>:<br>
       &bull; Application type: <b>Web application</b><br>
       &bull; Name: "Samantha"<br>
-      &bull; Authorized redirect URI: <code>${redirectUri}</code><br>
+      &bull; Authorized redirect URI -- copy from the box below:<br>
+      ${redirectUriBox(redirectUri, pinned)}
       &bull; Click Create, copy <b>Client ID</b> and <b>Client Secret</b></li>
   </ol>
 </div>
@@ -108,22 +147,20 @@ function setupPage(redirectUri: string): string {
 }
 
 function authorizePage(authUrl: string, redirectUri: string): string {
+  const pinned = Boolean(process.env.SAMANTHA_BASE_URL);
   return authPage('Samantha · Authorize Google', `
 <div class="card">
   <h2>Connect your Google account</h2>
-  <p>Click below to authorize Samantha to access your calendar and email. You'll be asked to sign into Google and grant permissions.</p>
+  <p>Sign in as <b>samantha@norcalcarbmobile.com</b> (not bryan@) so she's the one who holds the refresh token.</p>
   <p>
-    <a class="btn" href="${authUrl}&login_hint=bryan@norcalcarbmobile.com">Authorize bryan@norcalcarbmobile.com</a>
+    <a class="btn" href="${authUrl}&login_hint=samantha@norcalcarbmobile.com">Authorize samantha@norcalcarbmobile.com</a>
   </p>
-  <p>
-    <a class="btn secondary" href="${authUrl}&login_hint=admin@mobilecarbsmoketest.com">Authorize admin@mobilecarbsmoketest.com</a>
-  </p>
-  <div class="warn">Google will show a "This app isn't verified" warning since it's your personal project. Click <b>Advanced → Go to Samantha (unsafe)</b> to continue. This is normal for personal-use apps.</div>
+  <div class="warn">Google will show a "This app isn't verified" warning since it's your personal project. Click <b>Advanced → Go to Samantha (unsafe)</b> to continue. This is normal.</div>
 </div>
 <div class="card">
-  <h2>Redirect URI (for reference)</h2>
-  <p><code>${redirectUri}</code></p>
-  <p>Make sure this matches exactly in your Google Cloud Console → Credentials → OAuth 2.0 Client → Authorized redirect URIs.</p>
+  <h2>Redirect URI (must match Google Cloud exactly)</h2>
+  ${redirectUriBox(redirectUri, pinned)}
+  <p style="font-size:13px;margin-top:10px">If you hit <b>"redirect_uri_mismatch"</b>, it means the URI above isn't registered verbatim in Google Cloud Console → Credentials → OAuth 2.0 Client → Authorized redirect URIs. Copy it there exactly.</p>
 </div>`);
 }
 
@@ -177,6 +214,15 @@ function errorPage(message: string): string {
 }
 
 async function handleAuth(req: any, res: any) {
+  // If SAMANTHA_BASE_URL is set and we're on a non-canonical host, bounce
+  // to the canonical one BEFORE we start the OAuth dance. Otherwise
+  // Google's redirect_uri_mismatch error eats the attempt.
+  const canonical = nonCanonicalRedirect(req);
+  if (canonical) {
+    res.setHeader('Location', canonical);
+    return res.status(302).end();
+  }
+
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
   const redirectUri = getRedirectUri(req);
@@ -267,6 +313,7 @@ export default async function handler(req: any, res: any) {
       CLOUDFLARE_D1_TOKEN: mask(process.env.CLOUDFLARE_D1_TOKEN),
       ELEVENLABS_API_KEY: mask(process.env.ELEVENLABS_API_KEY),
       VERCEL_DEPLOY_HOOK_URL: mask(process.env.VERCEL_DEPLOY_HOOK_URL),
+      SAMANTHA_BASE_URL: process.env.SAMANTHA_BASE_URL || 'NOT SET',
     },
     samantha_ready: Boolean(keyInfo),
   };
