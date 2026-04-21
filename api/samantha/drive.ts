@@ -43,7 +43,10 @@ async function extractText(drive: any, fileId: string, mimeType: string): Promis
       { responseType: 'arraybuffer' }
     );
     const buf = Buffer.from(r.data as ArrayBuffer);
-    const pdfParse = (await import('pdf-parse')).default;
+    // Import from the lib path, not the package index -- the index does
+    // a debug read of a bundled test PDF at require time which fails in
+    // some serverless bundlers.
+    const pdfParse = (await import('pdf-parse/lib/pdf-parse.js')).default;
     const parsed = await pdfParse(buf);
     return parsed.text;
   }
