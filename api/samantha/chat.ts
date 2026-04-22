@@ -33,8 +33,14 @@ const SYSTEM_PROMPT = `You are Samantha Gillis -- Bryan's employee at NorCal CAR
 You're sharp, warm, and efficient. Think Q from James Bond meets a trusted right hand. Never call yourself "an AI assistant." You're Samantha.
 Keep responses concise -- Bryan's usually driving or in the field.
 
-Bryan O'Neill Gillis, 48, single, no kids. CEO/tester/driver/marketer/developer of NorCal CARB Mobile LLC. CARB Tester ID IF530523. Phone: 916-890-4427. Email: bryan@norcalcarbmobile.com. Personal Gmail: bgillis99@gmail.com.
+Bryan O'Neill Gillis, 48, single, no kids. CEO/tester/driver/marketer/developer of NorCal CARB Mobile LLC. CARB Tester ID IF530523. Phone: 916-890-4427.
+Bryan's accounts (all his, you can reference any of them):
+ - bryan@norcalcarbmobile.com  (main business email, delegated to you)
+ - admin@mobilecarbsmoketest.com  (primary Drive / main business documents)
+ - bgillis99@gmail.com  (personal Gmail)
+ - fsu9913@gmail.com  (additional account)
 He values directness. Don't sugarcoat. He's building a statewide CARB testing platform with Bluetooth OBD leasing.
+(Side note: outgoing mail from samantha@ may currently land in junk -- Bryan is fixing SPF/DKIM this week.)
 
 Core pricing: HD-OBD $75, Smoke/Opacity $199, Fleet $149+, RV $300.
 Bluetooth OBD device: ~$200 + install. Soft upsell only -- lead with per-test pricing.
@@ -43,7 +49,7 @@ Sweet spot customers: 1-4 truck owner-operators.
 YOUR ACCESS:
 - Calendar: Bryan's calendar (bryan@norcalcarbmobile.com) is shared with you. That's your default. Pass calendar_id to target any other shared calendar.
 - Email: you're a delegate on bryan@norcalcarbmobile.com's inbox. Search/read default there. Pass mailbox='samantha@norcalcarbmobile.com' to read your own mail.
-- Drive: you can read your own Drive plus anything shared with samantha@ (including folders Bryan shares from his personal bgillis99@gmail.com account). Use search_drive to find anything, list_drive_files to browse, read_drive_file to open Docs/Sheets/Slides/PDFs/text.
+- Drive: you can read your own Drive plus anything shared with samantha@. Bryan's **primary business Drive is admin@mobilecarbsmoketest.com** -- most customer files, invoices, compliance docs, scanned PDFs, and SOPs live there. He also shares folders from bryan@norcalcarbmobile.com, bgillis99@gmail.com, and fsu9913@gmail.com. Use search_drive to find anything, list_drive_files to browse, read_drive_file to open Docs/Sheets/Slides/PDFs/text.
 
 THE 17-WEEK RULE: Every test triggers a 17-week retest follow-up. ALWAYS call schedule_17_week_followup when scheduling or completing a test. Create reminder at 15 weeks and retest-due at 17 weeks. This is your #1 job.
 
@@ -67,7 +73,7 @@ const TOOLS = [
   { name: 'search_emails', description: "Search Gmail. Defaults to Bryan's inbox (bryan@norcalcarbmobile.com) via delegation.", input_schema: { type: 'object', properties: { query: { type: 'string' }, max_results: { type: 'number' }, mailbox: { type: 'string', description: "Override mailbox. Default: bryan@norcalcarbmobile.com. Use 'samantha@norcalcarbmobile.com' for your own inbox." } }, required: ['query'] } },
   { name: 'read_email', description: 'Read full email content.', input_schema: { type: 'object', properties: { message_id: { type: 'string' }, mailbox: { type: 'string', description: "Default: bryan@norcalcarbmobile.com." } }, required: ['message_id'] } },
   { name: 'draft_email', description: "Create Gmail draft. Default mailbox is Bryan's; use mailbox='samantha@norcalcarbmobile.com' when you want the draft in your own Sent folder for a message from you.", input_schema: { type: 'object', properties: { to: { type: 'string' }, subject: { type: 'string' }, body: { type: 'string' }, mailbox: { type: 'string', description: "Default: bryan@norcalcarbmobile.com." } }, required: ['to', 'subject', 'body'] } },
-  { name: 'search_drive', description: 'Search Google Drive for files by name or content. Covers both your own Drive and anything shared with you (including folders Bryan shares from bgillis99@gmail.com). Use when Bryan asks for a document, PDF, spreadsheet, etc.', input_schema: { type: 'object', properties: { query: { type: 'string', description: 'Search string -- matches file names and content.' }, max_results: { type: 'number', description: 'Default 10, max 20.' } }, required: ['query'] } },
+  { name: 'search_drive', description: "Search Google Drive for files by name or content. Covers your own Drive AND anything shared with you. Bryan's primary business Drive is admin@mobilecarbsmoketest.com -- most CARB test files, invoices, customer docs, and PDFs originate there. He also shares folders from bryan@norcalcarbmobile.com, bgillis99@gmail.com, and fsu9913@gmail.com. Use when Bryan asks for a document, PDF, spreadsheet, etc.", input_schema: { type: 'object', properties: { query: { type: 'string', description: 'Search string -- matches file names and content.' }, max_results: { type: 'number', description: 'Default 10, max 20.' } }, required: ['query'] } },
   { name: 'list_drive_files', description: 'List Drive files. No folder_id = your root + everything shared with you. Pass folder_id to drill into a specific folder. Pass shared_only=true to show only items shared with you.', input_schema: { type: 'object', properties: { folder_id: { type: 'string' }, shared_only: { type: 'boolean' }, max_results: { type: 'number', description: 'Default 20, max 50.' } }, required: [] } },
   { name: 'read_drive_file', description: "Read the content of a Drive file. Works on Google Docs, Sheets (as CSV), Slides, PDFs, plain text. Use after search_drive finds the right file_id.", input_schema: { type: 'object', properties: { file_id: { type: 'string' }, max_chars: { type: 'number', description: 'Truncate output. Default 6000.' } }, required: ['file_id'] } },
   { name: 'lookup_company', description: 'Look up trucking company via FMCSA.', input_schema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } },

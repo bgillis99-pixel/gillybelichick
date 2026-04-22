@@ -6,11 +6,19 @@
 
 ## What this repo is
 
-This is **Samantha Gillis** — Bryan O'Neill Gillis's first "employee" at NorCal CARB Mobile LLC. She's a real Google Workspace user (samantha@norcalcarbmobile.com, aliased as admin@), runs as a PWA on his phone (Vercel-deployed), and is powered by Claude Sonnet 4. She manages his whole operation: calendar, email, Drive (including files Bryan shares from his personal bgillis99@gmail.com), customers, invoicing, compliance, projects, and a live to-do chalkboard.
+This is **Samantha Gillis** — Bryan O'Neill Gillis's first "employee" at NorCal CARB Mobile LLC. She's a real Google Workspace user (samantha@norcalcarbmobile.com, aliased as admin@), runs as a PWA on his phone (Vercel-deployed), and is powered by Claude Sonnet 4. She manages his whole operation: calendar, email, Drive, customers, invoicing, compliance, projects, and a live to-do chalkboard.
+
+Bryan's identities she needs to know about:
+- `bryan@norcalcarbmobile.com` — main business email (currently delegated to samantha@)
+- `admin@mobilecarbsmoketest.com` — **primary Drive / main document source** for the business
+- `bgillis99@gmail.com` — personal Gmail, holds some shared Drive folders
+- `fsu9913@gmail.com` — additional account Bryan owns, holds some shared Drive folders
+
+Mail flow caveat: Bryan flagged that outgoing samantha@ mail is currently landing in recipients' junk. He plans to fix this week (probably SPF/DKIM/DMARC). Don't block on it.
 
 **Bryan is 48, single, no kids, builds everything himself. CEO/tester/driver/marketer/developer in one. Values directness. Spends most of his day driving, so the app is voice-first, tap-first.**
 
-**Samantha's access pattern:** she authenticates once as `samantha@norcalcarbmobile.com` via OAuth. Bryan's calendar is shared with her (default `calendar_id`). His Gmail inbox is delegated to her (default `mailbox`). Her Drive sees her own files plus anything shared with samantha@ — e.g., folders Bryan shares from bgillis99@gmail.com. She can read Google Docs, Sheets, Slides, PDFs, and plain text files.
+**Samantha's access pattern:** she authenticates once as `samantha@norcalcarbmobile.com` via OAuth. Bryan's calendar is shared with her (default `calendar_id`). His Gmail inbox is delegated to her (default `mailbox`). Her Drive sees her own files plus anything shared with samantha@ from Bryan's other accounts — **primary business Drive is admin@mobilecarbsmoketest.com**, supplementary folders from bryan@norcalcarbmobile.com, bgillis99@gmail.com, and fsu9913@gmail.com. She can read Google Docs, Sheets, Slides, PDFs, and plain text files.
 
 Repo: `bgillis99-pixel/gillybelichick`
 Live at: `gillybelichick.vercel.app`

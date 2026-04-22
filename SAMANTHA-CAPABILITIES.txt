@@ -54,8 +54,11 @@ CATEGORY 2: EMAIL (Gmail -- delegated to Bryan's inbox by default)
 CATEGORY 3: DRIVE (Google Drive -- Samantha's account + shared)
 ----------------------------------------------------------------
 8. search_drive    - Find files by name or content across everything
-                      she has access to, including Bryan's shared folders
-                      from bgillis99@gmail.com
+                      she has access to. Bryan's primary business Drive
+                      is admin@mobilecarbsmoketest.com -- most work
+                      documents live there. She also sees folders
+                      shared from bryan@norcalcarbmobile.com,
+                      bgillis99@gmail.com, and fsu9913@gmail.com.
 9. list_drive_files - Browse her root + things shared with her
 10. read_drive_file - Open Google Docs, Sheets (CSV), Slides, PDFs,
                       plain text. Used after search_drive.
