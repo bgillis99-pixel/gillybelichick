@@ -33,9 +33,10 @@ function mask(v: string | undefined): string {
 // ── Google OAuth (merged from auth.ts to stay within Vercel function limit) ──
 
 const SCOPES = [
+  'https://www.googleapis.com/auth/calendar.events',
   'https://www.googleapis.com/auth/gmail.readonly',
   'https://www.googleapis.com/auth/gmail.compose',
-  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/gmail.send',
 ];
 
 function getRedirectUri(req: any): string {
@@ -84,8 +85,8 @@ function setupPage(redirectUri: string): string {
     <li>Go to <b>APIs & Services → OAuth consent screen</b>:<br>
       &bull; User type: <b>External</b>, click Create<br>
       &bull; App name: "Samantha", your email for support<br>
-      &bull; Add scopes: <code>gmail.readonly</code>, <code>gmail.compose</code>, <code>calendar</code><br>
-      &bull; Add <b>Test users</b>: <code>admin@mobilecarbsmoketest.com</code> and <code>bryan@norcalcarbmobile.com</code><br>
+      &bull; Add scopes: <code>calendar.events</code>, <code>gmail.readonly</code>, <code>gmail.compose</code>, <code>gmail.send</code><br>
+      &bull; Add <b>Test users</b>: <code>samantha@norcalcarbmobile.com</code> and <code>bryan@norcalcarbmobile.com</code><br>
       &bull; Save</li>
     <li>Go to <b>APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID</b>:<br>
       &bull; Application type: <b>Web application</b><br>
@@ -113,10 +114,10 @@ function authorizePage(authUrl: string, redirectUri: string): string {
   <h2>Connect your Google account</h2>
   <p>Click below to authorize Samantha to access your calendar and email. You'll be asked to sign into Google and grant permissions.</p>
   <p>
-    <a class="btn" href="${authUrl}&login_hint=bryan@norcalcarbmobile.com">Authorize bryan@norcalcarbmobile.com</a>
+    <a class="btn" href="${authUrl}&login_hint=samantha@norcalcarbmobile.com">Authorize samantha@norcalcarbmobile.com</a>
   </p>
   <p>
-    <a class="btn secondary" href="${authUrl}&login_hint=admin@mobilecarbsmoketest.com">Authorize admin@mobilecarbsmoketest.com</a>
+    <a class="btn secondary" href="${authUrl}&login_hint=bryan@norcalcarbmobile.com">Authorize bryan@norcalcarbmobile.com</a>
   </p>
   <div class="warn">Google will show a "This app isn't verified" warning since it's your personal project. Click <b>Advanced → Go to Samantha (unsafe)</b> to continue. This is normal for personal-use apps.</div>
 </div>

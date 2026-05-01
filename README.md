@@ -1,132 +1,58 @@
-# 🚛 Mobile Carb Check - CARB Compliance App
+# Samantha
 
-**California's Premier Mobile CARB Compliance Application**
-Version: 0.1.0 (Alpha) | Phase: Mobile Web
+Personal AI command center for Bryan O'Neill Gillis (NorCal CARB Mobile LLC). Voice-first, tap-first PWA running on Vercel, powered by Claude Sonnet 4.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/bgillis99-pixel/FINALVINDIESEL)
+- **Live**: https://gillybelichick.vercel.app · https://bryanoneillgillis.com
+- **Status / self-diagnose**: https://gillybelichick.vercel.app/api/samantha/status
 
-## 📱 Overview
+## Architecture (don't break)
 
-Mobile Carb Check is a Progressive Web App (PWA) for heavy-duty diesel vehicle operators to comply with California Air Resources Board (CARB) regulations.
+- Frontend: pure HTML/CSS/JS/SVG in `public/index.html`. **No React, no bundler, no build step.**
+- Backend: Vercel serverless functions under `api/samantha/*.ts`. `chat.ts` is the Claude proxy with the system prompt + all tool definitions inlined.
+- Deps: `@anthropic-ai/sdk`, `googleapis`. That's it.
 
-**Target Vehicles:**
-- Heavy-Duty Diesel Trucks >14,000 lbs GVWR
-- Diesel Motorhomes and RVs
-- Agricultural Equipment with diesel engines
-- **NO GASOLINE VEHICLES**
+See `CLAUDE.md` for the full architecture + workflow notes.
 
-## ✨ Features
+## Environment variables
 
-- ✅ **Instant VIN Compliance Checks**
-- 🤖 **AI Chat Assistant** (Google Gemini)
-- 📸 **Media Analysis Tools**
-- 👤 **User Profiles & History**
-- 📱 **PWA Installation**
-- 🌐 **Offline Support**
-- 📞 **Mobile Service**: 844-685-8922
+Copy `.env.example` for the full list. Set everything in the Vercel dashboard (this repo has no dev server — there's nothing to run locally):
 
-## 🚀 Deployment to Vercel
+https://vercel.com/carbcleantruckcheckapp/gillybelichick/settings/environment-variables
 
-### Quick Deploy
+Required to make Samantha's brain work:
+- One of `ANTHROPIC_API_KEY`, `CLAUDE_API_KEY`, `SAMANTHA_API_KEY`, `SAMANTHA`, `CLAUDE`, or `ANTHROPIC_KEY`.
 
-1. Click "Deploy with Vercel" button above, OR
-2. Go to [vercel.com/new](https://vercel.com/new)
-3. Import: `bgillis99-pixel/FINALVINDIESEL`
-4. Configure:
-   - Framework: **Vite**
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-5. Add Environment Variable: `API_KEY` (Google AI Studio)
-6. Deploy!
+Required for Gmail + Calendar tools:
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`.
 
-### Environment Variables
+Hit `/api/samantha/status` any time to see which env vars are set, which name Samantha picked up her key from, and how to fix anything that's not.
 
-In Vercel dashboard, add:
-- **Key**: `API_KEY`
-- **Value**: Your Google Gemini API key from [ai.google.dev](https://ai.google.dev/)
+## Enable one-tap redeploy
 
-### Squarespace Integration
+The status page has a "Redeploy production now" button that only renders when `VERCEL_DEPLOY_HOOK_URL` is set.
 
-#### Full Page Embed
-```html
-<iframe
-  src="https://your-vercel-app.vercel.app"
-  style="width:100%; height:100vh; border:none;"
-  title="Mobile Carb Check"
-></iframe>
-```
+1. https://vercel.com/carbcleantruckcheckapp/gillybelichick/settings/git → **Deploy Hooks** → name `samantha-redeploy`, branch `main` → **Create Hook**.
+2. Copy the URL.
+3. https://vercel.com/carbcleantruckcheckapp/gillybelichick/settings/environment-variables → add `VERCEL_DEPLOY_HOOK_URL` (all 3 environments) → paste → save.
+4. Vercel auto-redeploys in ~45s. Refresh the status page — the button should be there.
 
-#### Widget Embed
-```html
-<div style="max-width: 600px; margin: 0 auto;">
-  <iframe
-    src="https://your-vercel-app.vercel.app"
-    style="width:100%; height:800px; border:2px solid #003366; border-radius:12px;"
-  ></iframe>
-</div>
-```
+## Connect Google (Gmail + Calendar)
 
-## 🛠️ Local Development
+Visit https://gillybelichick.vercel.app/api/samantha/status?auth — the page walks through the whole flow end-to-end:
+1. Create a Google Cloud project, enable Gmail API + Calendar API.
+2. Configure OAuth consent screen (External; add Bryan's emails as Test users).
+3. Create a Web OAuth Client with the redirect URI the page prints on screen.
+4. Paste `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` into Vercel env vars (link on the page).
+5. Refresh the wizard, click Authorize, complete Google consent.
+6. Copy the refresh token the page returns into `GOOGLE_REFRESH_TOKEN`.
 
-```bash
-git clone https://github.com/bgillis99-pixel/FINALVINDIESEL.git
-cd FINALVINDIESEL
-npm install
-cp .env.example .env  # Add your API_KEY
-npm run dev
-```
+Smoke test: "What's on my calendar today?"
 
-Open [http://localhost:3000](http://localhost:3000)
+## Deploying
 
-## 📂 Project Structure
+`main` is auto-deployed to production via Vercel's GitHub integration. Push to `main`, wait ~45s, reload. Or use the one-tap redeploy button above.
 
-```
-FINALVINDIESEL/
-├── src/
-│   ├── components/
-│   │   ├── VinChecker.tsx
-│   │   ├── ChatAssistant.tsx
-│   │   ├── MediaTools.tsx
-│   │   ├── ProfileView.tsx
-│   │   └── AdminView.tsx
-│   ├── types.ts
-│   └── App.tsx
-├── public/manifest.json
-├── index.html
-├── vite.config.ts
-└── package.json
-```
+## Contact
 
-## 🔑 Tech Stack
-
-- **Framework**: Vite + React 18
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **AI**: Google Gemini API
-- **Deployment**: Vercel
-
-## 📱 PWA Features
-
-- Installable on all platforms
-- Offline-capable
-- Push notifications (coming soon)
-- Share Target support
-
-## 📞 Contact & Support
-
-- **Phone**: 844-685-8922
-- **Email**: info@carbcleantruckcheck.app
-- **Website**: https://carbcleantruckcheck.app
-- **Service**: All of California
-
-## 📈 Roadmap
-
-- ✅ Phase 1: Mobile Web (Current)
-- 🔄 Phase 2: Enhanced Features (Q1 2026)
-- 🔄 Phase 3: Native Apps (Q2 2026)
-
-## 📄 License
-
-MIT License © 2025 Mobile Carb Check
-
-**Built with React + Vite + Tailwind + Google Gemini**
+- Phone: 844-685-8922
+- Email: info@carbcleantruckcheck.app
