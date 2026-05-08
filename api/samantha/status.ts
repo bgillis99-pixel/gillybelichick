@@ -33,9 +33,10 @@ function mask(v: string | undefined): string {
 // ── Google OAuth (merged from auth.ts to stay within Vercel function limit) ──
 
 const SCOPES = [
+  'https://www.googleapis.com/auth/calendar.events',
   'https://www.googleapis.com/auth/gmail.readonly',
   'https://www.googleapis.com/auth/gmail.compose',
-  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/gmail.send',
   'https://www.googleapis.com/auth/drive.readonly',
 ];
 
@@ -123,9 +124,9 @@ function setupPage(redirectUri: string): string {
       &bull; <b>Google Calendar API</b><br>
       &bull; <b>Google Drive API</b></li>
     <li><b>APIs & Services → OAuth consent screen</b>:<br>
-      &bull; User type: <b>Internal</b> (since <code>samantha@norcalcarbmobile.com</code> is in your own Workspace org — no test-user approval needed). Otherwise External.<br>
+      &bull; User type: <b>Internal</b> (since <code>samantha@norcalcarbmobile.com</code> is in your own Workspace org — no test-user approval needed). Otherwise <b>External</b> + add Test users <code>samantha@norcalcarbmobile.com</code> and <code>bryan@norcalcarbmobile.com</code>.<br>
       &bull; App name: "Samantha", support email: <code>bryan@norcalcarbmobile.com</code><br>
-      &bull; Scopes: <code>gmail.readonly</code>, <code>gmail.compose</code>, <code>calendar</code>, <code>drive.readonly</code><br>
+      &bull; Scopes: <code>calendar.events</code>, <code>gmail.readonly</code>, <code>gmail.compose</code>, <code>gmail.send</code>, <code>drive.readonly</code><br>
       &bull; Save</li>
     <li><b>Credentials → Create Credentials → OAuth 2.0 Client ID</b>:<br>
       &bull; Application type: <b>Web application</b><br>
@@ -157,7 +158,10 @@ function authorizePage(authUrl: string, redirectUri: string): string {
   <p>
     <a class="btn" href="${authUrl}&login_hint=samantha@norcalcarbmobile.com">Authorize samantha@norcalcarbmobile.com</a>
   </p>
-  <div class="warn">Google will show a "This app isn't verified" warning since it's your personal project. Click <b>Advanced → Go to Samantha (unsafe)</b> to continue. This is normal.</div>
+  <p>
+    <a class="btn secondary" href="${authUrl}&login_hint=bryan@norcalcarbmobile.com">Authorize bryan@norcalcarbmobile.com</a>
+  </p>
+  <div class="warn">Google will show a "This app isn't verified" warning since it's your personal project. Click <b>Advanced → Go to Samantha (unsafe)</b> to continue. This is normal for personal-use apps.</div>
 </div>
 <div class="card">
   <h2>Redirect URI (must match Google Cloud exactly)</h2>
