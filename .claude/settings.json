@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__github__pull_request_read",
+      "mcp__357fd93c-91d7-4b22-9115-20d7fddd4fbb__list_deployments",
+      "mcp__357fd93c-91d7-4b22-9115-20d7fddd4fbb__get_project",
+      "mcp__357fd93c-91d7-4b22-9115-20d7fddd4fbb__get_runtime_logs",
+      "mcp__357fd93c-91d7-4b22-9115-20d7fddd4fbb__web_fetch_vercel_url",
+      "mcp__357fd93c-91d7-4b22-9115-20d7fddd4fbb__list_projects",
+      "mcp__357fd93c-91d7-4b22-9115-20d7fddd4fbb__get_deployment",
+      "mcp__357fd93c-91d7-4b22-9115-20d7fddd4fbb__get_deployment_build_logs",
+      "mcp__357fd93c-91d7-4b22-9115-20d7fddd4fbb__list_teams"
+    ]
+  }
+}
