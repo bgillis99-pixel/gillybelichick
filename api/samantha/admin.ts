@@ -281,12 +281,11 @@ export default async function handler(req: any, res: any) {
 
     if (action === 'github_set_secret') {
       if (!githubToken) return res.status(500).json({ error: 'GITHUB_TOKEN not set' });
-      const { owner, repo, key, value } = params;
+      const { owner, repo } = params;
       // Get repo's public key for encryption
       const pk = await githubFetch(`/repos/${owner}/${repo}/actions/secrets/public-key`, githubToken);
-      // Encrypt using libsodium-wrappers would require a dep; instead use the Node-compatible crypto approach.
-      // For now, secrets-setting is best done through the UI, but we expose a raw fetch pattern.
-      // TODO: add libsodium-wrappers to dependencies for full secret encryption.
+      // Encrypting via libsodium-wrappers would require an extra dep.
+      // Until that lands, this stub returns 501 so callers know to fall back to the UI.
       return res.status(501).json({
         error: 'not_implemented',
         reason: 'Encrypting GitHub secrets requires libsodium. Set secrets via the UI for now, or we add libsodium-wrappers in a follow-up.',
