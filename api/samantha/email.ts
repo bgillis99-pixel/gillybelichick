@@ -1,5 +1,12 @@
 import { google } from 'googleapis';
 
+// Samantha authenticates as samantha@norcalcarbmobile.com and has been
+// granted Gmail delegation to bryan@norcalcarbmobile.com at the Workspace
+// level. That means she can call the Gmail API with `userId: 'bryan@...'`
+// using her own OAuth creds. Default to Bryan's inbox since that's what
+// she's usually being asked about; override per-tool via `mailbox` param.
+const DEFAULT_MAILBOX = process.env.DEFAULT_MAILBOX || 'bryan@norcalcarbmobile.com';
+
 function getOAuth2Client() {
   const client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -38,12 +45,13 @@ export default async function handler(req: any, res: any) {
 
     const auth = getOAuth2Client();
     const gmail = google.gmail({ version: 'v1', auth });
+    const mailbox = params?.mailbox || DEFAULT_MAILBOX;
 
     if (action === 'search_emails') {
       const { query, max_results = 5 } = params;
 
       const listResponse = await gmail.users.messages.list({
-        userId: 'me',
+        userId: mailbox,
         q: query,
         maxResults: Math.min(max_results, 10),
       });
@@ -53,7 +61,7 @@ export default async function handler(req: any, res: any) {
 
       for (const msg of messageIds) {
         const detail = await gmail.users.messages.get({
-          userId: 'me',
+          userId: mailbox,
           id: msg.id!,
           format: 'metadata',
           metadataHeaders: ['From', 'Subject', 'Date'],
@@ -69,14 +77,14 @@ export default async function handler(req: any, res: any) {
         });
       }
 
-      return res.status(200).json({ emails, count: emails.length });
+      return res.status(200).json({ emails, count: emails.length, mailbox });
     }
 
     if (action === 'read_email') {
       const { message_id } = params;
 
       const detail = await gmail.users.messages.get({
-        userId: 'me',
+        userId: mailbox,
         id: message_id,
         format: 'full',
       });
@@ -124,7 +132,7 @@ export default async function handler(req: any, res: any) {
       ).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
       const response = await gmail.users.drafts.create({
-        userId: 'me',
+        userId: mailbox,
         requestBody: {
           message: { raw },
         },
@@ -132,7 +140,8 @@ export default async function handler(req: any, res: any) {
 
       return res.status(200).json({
         draft_id: response.data.id,
-        message: `Draft created: "${subject}" to ${to}`,
+        mailbox,
+        message: `Draft created in ${mailbox}: "${subject}" to ${to}`,
       });
     }
 

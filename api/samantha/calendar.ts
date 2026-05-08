@@ -1,5 +1,11 @@
 import { google } from 'googleapis';
 
+// Samantha authenticates as samantha@norcalcarbmobile.com. By default she
+// manages Bryan's calendar (he's her boss, that's her job). His calendar
+// is shared with her at the Workspace level, so this works with her own
+// OAuth creds. Override per-tool via `calendar_id` param.
+const DEFAULT_CALENDAR_ID = process.env.DEFAULT_CALENDAR_ID || 'bryan@norcalcarbmobile.com';
+
 function getOAuth2Client() {
   const client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -29,6 +35,7 @@ export default async function handler(req: any, res: any) {
 
     const auth = getOAuth2Client();
     const calendar = google.calendar({ version: 'v3', auth });
+    const calendarId = params?.calendar_id || DEFAULT_CALENDAR_ID;
 
     if (action === 'get_calendar_events') {
       const now = new Date();
@@ -36,7 +43,7 @@ export default async function handler(req: any, res: any) {
       const endDate = params?.end_date || new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
 
       const response = await calendar.events.list({
-        calendarId: 'primary',
+        calendarId,
         timeMin: startDate,
         timeMax: endDate,
         maxResults: 10,
@@ -54,14 +61,14 @@ export default async function handler(req: any, res: any) {
         description: event.description || null,
       }));
 
-      return res.status(200).json({ events, count: events.length });
+      return res.status(200).json({ events, count: events.length, calendar_id: calendarId });
     }
 
     if (action === 'create_calendar_event') {
       const { title, start, end, description, location, recurrence } = params;
 
       const response = await calendar.events.insert({
-        calendarId: 'primary',
+        calendarId,
         requestBody: {
           summary: title,
           start: { dateTime: start, timeZone: 'America/Los_Angeles' },
@@ -81,6 +88,7 @@ export default async function handler(req: any, res: any) {
           location: response.data.location,
           description: response.data.description,
         },
+        calendar_id: calendarId,
         message: 'Event created successfully',
       });
     }

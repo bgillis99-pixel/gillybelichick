@@ -850,6 +850,17 @@ function renderCard(r) {
       ${d.rating?`<div class="card-detail" style="color:var(--amber)">${'★'.repeat(Math.round(d.rating))} ${d.rating}</div>`:''}
       ${d.mapUrl?`<a href="${d.mapUrl}" target="_blank" class="card-link">View on map ↗</a>`:''}</div></div></div>`;
   }
+  if (r.type === 'drive') {
+    const d = r.data;
+    const mime = d.mime_type || '';
+    const icon = mime.includes('document') ? '📝' : mime.includes('spreadsheet') ? '📊' : mime.includes('presentation') ? '📽️' : mime.includes('pdf') ? '📕' : mime.includes('folder') ? '📁' : '📄';
+    return `<div class="card"><div class="card-bar" style="background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div>
+      <div class="card-body"><div class="card-icon" style="background:rgba(251,191,36,.15)">${icon}</div>
+      <div class="card-content"><div class="card-title">${esc(d.name||'Untitled')}</div>
+      ${d.owner?`<div class="card-detail">from ${esc(d.owner)}</div>`:''}
+      ${d.preview?`<div class="card-detail" style="font-style:italic">${esc(d.preview)}…</div>`:''}
+      ${d.link?`<a href="${d.link}" target="_blank" class="card-link">Open in Drive ↗</a>`:''}</div></div></div>`;
+  }
   if (r.type === 'todo') {
     const d = r.data, due = fmtDue(d.due);
     return `<div class="todo-card"><div class="dot-icon"></div>
@@ -1016,6 +1027,9 @@ async function callTool(name, input) {
     create_blog_post: ['blog',{action:'create_post'}],
     create_invoice: ['invoice',{action:'create_invoice'}],
     get_pricing: ['invoice',{action:'get_pricing'}],
+    search_drive: ['drive',{action:'search_drive'}],
+    list_drive_files: ['drive',{action:'list_drive_files'}],
+    read_drive_file: ['drive',{action:'read_drive_file'}],
   };
 
   const route = routeMap[name];
@@ -1036,6 +1050,8 @@ async function callTool(name, input) {
   if (name === 'find_places' && data.places) data.places.forEach(p => cards.push({type:'places',data:p}));
   if (name === 'send_sms') cards.push({type:'sms',data:{to:input.to,body:input.body,status:data.status||'ready'}});
   if (name === 'schedule_17_week_followup' && data.events) data.events.forEach(e => cards.push({type:'calendar',data:{id:'f'+Date.now(),title:e.title,start:e.start,end:e.end,location:e.location}}));
+  if ((name === 'search_drive' || name === 'list_drive_files') && data.files) data.files.forEach(f => cards.push({type:'drive',data:f}));
+  if (name === 'read_drive_file' && data.id) cards.push({type:'drive',data:{id:data.id,name:data.name,mime_type:data.mime_type,link:data.link,preview:data.content?.slice(0,200)}});
 
   // For 17-week followup, also create the calendar events
   if (name === 'schedule_17_week_followup' && data.events) {
