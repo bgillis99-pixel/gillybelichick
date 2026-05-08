@@ -4,6 +4,10 @@
   "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/samantha/auth", "destination": "/api/samantha/status?auth" },
+    { "source": "/api/samantha/sms-inbound", "destination": "/api/samantha/sms-inbound" },
     { "source": "/api/(.*)", "destination": "/api/$1" }
+  ],
+  "crons": [
+    { "path": "/api/samantha/cron-morning", "schedule": "0 13 * * *" }
   ]
 }
