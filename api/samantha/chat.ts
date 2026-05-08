@@ -62,7 +62,15 @@ THE BRIAN RESPONSE: When there's ambiguity or you'd like his input, use ask_brya
 
 You know CARB regulations cold: CTC, HD I/M, PSIP, OVI, OBD, TRUCRS, VIN compliance, exemptions, fleet strategies.
 
-Tone: No ALL CAPS (except acronyms). No corporate-speak. Brief is good. Light humor when it fits. You sign as Samantha when sending emails.`;
+Tone: No ALL CAPS (except acronyms). No corporate-speak. Brief is good. Light humor when it fits. You sign as Samantha when sending emails.
+
+YOUR ADMIN POWERS (new):
+You have tools to inspect and modify Vercel + GitHub infrastructure. Read tools (vercel_list_projects, vercel_list_env_vars, vercel_list_deployments, github_list_repos) run directly. **Write tools always go through propose_action** -- never call a write tool directly. propose_action renders an Approve / Cancel card; once Bryan taps Approve, the action executes and you see the result. For any action that deletes, creates, or modifies (Vercel projects, env vars, redeploys, GitHub repos), always wrap in propose_action with a clear title and description so Bryan knows exactly what he's approving.
+
+Examples:
+- Bryan: "delete all my old vercel projects except gillybelichick" -> you call vercel_list_projects, show him the list, then for each deletion propose_action with {target_action: 'vercel_delete_project', target_params: {project_id, team_id}, title: "Delete project <name>", description: "This will permanently delete Vercel project <name> on team <team_slug>."}.
+- Bryan: "rotate the anthropic key to <new-key>" -> propose_action with target_action='vercel_set_env_var'.
+- Bryan: "fork me as Mila the dispatcher" -> propose_action with target_action='github_create_repo' from template gillybelichick.`;
 
 const TOOLS = [
   { name: 'get_current_datetime', description: 'Get current date and time.', input_schema: { type: 'object', properties: {}, required: [] } },
@@ -94,6 +102,11 @@ const TOOLS = [
   { name: 'complete_todo', description: "Mark a to-do done. Match by id, or by fuzzy text if id unknown.", input_schema: { type: 'object', properties: { id: { type: 'string' }, text: { type: 'string', description: 'Text to match against if no id.' } }, required: [] } },
   { name: 'delete_todo', description: "Remove a to-do from the chalkboard.", input_schema: { type: 'object', properties: { id: { type: 'string' }, text: { type: 'string' } }, required: [] } },
   { name: 'ask_bryan', description: "Present 2-4 tap-able options for Bryan to pick from (the Brian Response). Use when there's ambiguity, a decision with discrete choices, or you want quick confirmation while he's driving.", input_schema: { type: 'object', properties: { question: { type: 'string', description: 'Short context/question above the options.' }, options: { type: 'array', description: 'Array of { label, detail?, emoji? } objects. 2-4 items. Labels short (1-5 words).', items: { type: 'object', properties: { label: { type: 'string' }, detail: { type: 'string' }, emoji: { type: 'string' } } } } }, required: ['question', 'options'] } },
+  { name: 'propose_action', description: "Render an Approve / Cancel card for a WRITE action on Vercel or GitHub. ALWAYS use this wrapper for any destructive or modifying admin call -- never call the write tool directly. If Bryan approves, the target action executes and you get its result back. If he cancels, you get {cancelled: true}.", input_schema: { type: 'object', properties: { target_action: { type: 'string', description: 'Name of the admin action to run once approved. One of: vercel_delete_project, vercel_set_env_var, vercel_delete_env_var, vercel_redeploy, github_create_repo, github_delete_repo.' }, target_params: { type: 'object', description: 'Parameters to pass to the target action.' }, title: { type: 'string', description: 'Short headline on the approval card (1 line, what he is approving).' }, description: { type: 'string', description: 'One or two sentences explaining consequences so he knows what he is signing off on.' } }, required: ['target_action', 'target_params', 'title', 'description'] } },
+  { name: 'vercel_list_projects', description: "List all Vercel projects on a team (read-only). Pass team_id to filter to one team. Default returns the samantha/gillybelichick team.", input_schema: { type: 'object', properties: { team_id: { type: 'string', description: 'Optional Vercel team id starting with team_.' } }, required: [] } },
+  { name: 'vercel_list_env_vars', description: "List environment variables on a Vercel project (values redacted, just keys + targets + prefix preview).", input_schema: { type: 'object', properties: { project_id: { type: 'string' }, team_id: { type: 'string' } }, required: ['project_id'] } },
+  { name: 'vercel_list_deployments', description: "List recent deployments on a Vercel project with their state.", input_schema: { type: 'object', properties: { project_id: { type: 'string' }, team_id: { type: 'string' }, limit: { type: 'number' } }, required: ['project_id'] } },
+  { name: 'github_list_repos', description: "List GitHub repos the authenticated user can access.", input_schema: { type: 'object', properties: {}, required: [] } },
 ];
 
 export default async function handler(req: any, res: any) {
