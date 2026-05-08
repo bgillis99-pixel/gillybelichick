@@ -92,6 +92,7 @@ Each agent inherits the visual state pattern (hair up/down for Samantha → hard
 ## Optional env vars
 
 - `VERCEL_DEPLOY_HOOK_URL` — enables the one-tap "Redeploy production" button on the status page. Create at Vercel → Settings → Git → Deploy Hooks, then paste the URL as this env var.
+- `SAMANTHA_BASE_URL` — pins the OAuth redirect URI to one canonical host (e.g. `https://bryanoneillgillis.com`). Without it, the redirect URI is computed from the request host, so visits from `bryanoneillgillis.com`, `www.bryanoneillgillis.com`, and `gillybelichick.vercel.app` each produce a different URI — and Google Cloud Console only accepts **exact** matches on registered URIs. Set this to whichever domain you registered in Google Cloud. Visits from non-canonical hosts 302 to the canonical one before the OAuth flow starts.
 - `DEFAULT_MAILBOX` — override Gmail default (normally `bryan@norcalcarbmobile.com`).
 - `DEFAULT_CALENDAR_ID` — override Calendar default (normally `bryan@norcalcarbmobile.com`).
 
