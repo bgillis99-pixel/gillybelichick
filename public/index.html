@@ -91,6 +91,24 @@
     .card-title { font-size: 14px; font-weight: 600; }
     .card-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .card-link { font-size: 12px; color: var(--coral); text-decoration: none; font-weight: 500; margin-top: 6px; display: inline-block; }
+
+    /* Approval card (propose_action gate) */
+    .approval-card { background: #fff; border: 2px solid #fbbf24; border-radius: 14px; padding: 14px 16px; max-width: 85%; margin-top: 6px; box-shadow: 0 2px 10px rgba(251,191,36,.18); }
+    .approval-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .approval-icon { width: 32px; height: 32px; border-radius: 50%; background: #fef3c7; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .approval-title { font-weight: 600; font-size: 15px; flex: 1; }
+    .approval-desc { font-size: 13px; line-height: 1.5; color: var(--text); margin-bottom: 8px; }
+    .approval-meta { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+    .approval-meta code { background: #f5f0e8; padding: 1px 5px; border-radius: 4px; font-size: 11px; }
+    .approval-btns { display: flex; gap: 8px; }
+    .approval-btn { flex: 1; padding: 10px 14px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .15s; }
+    .approval-btn.approve { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
+    .approval-btn.approve:hover { opacity: .9; }
+    .approval-btn.cancel { background: #f3f4f6; color: var(--text); }
+    .approval-btn.cancel:hover { background: #e5e7eb; }
+    .approval-resolved { padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; }
+    .approval-resolved.approve { background: #dcfce7; color: #166534; }
+    .approval-resolved.cancel { background: #f3f4f6; color: var(--muted); }
     .card-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
 
     /* Typing */
@@ -850,6 +868,17 @@ function renderCard(r) {
       ${d.rating?`<div class="card-detail" style="color:var(--amber)">${'★'.repeat(Math.round(d.rating))} ${d.rating}</div>`:''}
       ${d.mapUrl?`<a href="${d.mapUrl}" target="_blank" class="card-link">View on map ↗</a>`:''}</div></div></div>`;
   }
+  if (r.type === 'drive') {
+    const d = r.data;
+    const mime = d.mime_type || '';
+    const icon = mime.includes('document') ? '📝' : mime.includes('spreadsheet') ? '📊' : mime.includes('presentation') ? '📽️' : mime.includes('pdf') ? '📕' : mime.includes('folder') ? '📁' : '📄';
+    return `<div class="card"><div class="card-bar" style="background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div>
+      <div class="card-body"><div class="card-icon" style="background:rgba(251,191,36,.15)">${icon}</div>
+      <div class="card-content"><div class="card-title">${esc(d.name||'Untitled')}</div>
+      ${d.owner?`<div class="card-detail">from ${esc(d.owner)}</div>`:''}
+      ${d.preview?`<div class="card-detail" style="font-style:italic">${esc(d.preview)}…</div>`:''}
+      ${d.link?`<a href="${d.link}" target="_blank" class="card-link">Open in Drive ↗</a>`:''}</div></div></div>`;
+  }
   if (r.type === 'todo') {
     const d = r.data, due = fmtDue(d.due);
     return `<div class="todo-card"><div class="dot-icon"></div>
@@ -951,6 +980,42 @@ async function callChat(msgs) {
   return r.json();
 }
 
+// Approval card: renders an Approve / Cancel card in the chat stream
+// and resolves window.__samApprovals[id] when the user taps either
+// button. callTool('propose_action') awaits that resolve.
+function renderApprovalCard(id, title, description, targetAction) {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg sam';
+  wrap.id = 'approval-' + id;
+  wrap.innerHTML = `
+    <div class="approval-card">
+      <div class="approval-head">
+        <div class="approval-icon">🔒</div>
+        <div class="approval-title">${esc(title)}</div>
+      </div>
+      <div class="approval-desc">${esc(description)}</div>
+      <div class="approval-meta">Action: <code>${esc(targetAction || '')}</code></div>
+      <div class="approval-btns">
+        <button class="approval-btn approve" data-id="${id}" data-choice="approve">Approve</button>
+        <button class="approval-btn cancel" data-id="${id}" data-choice="cancel">Cancel</button>
+      </div>
+    </div>`;
+  msgsEl.appendChild(wrap);
+  chatEl.scrollTop = chatEl.scrollHeight;
+
+  wrap.querySelectorAll('.approval-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const choice = btn.getAttribute('data-choice');
+      const el = document.getElementById('approval-' + id);
+      if (el) {
+        el.innerHTML = `<div class="approval-resolved ${choice}">${choice === 'approve' ? '✓ Approved' : '✗ Cancelled'} — ${esc(title)}</div>`;
+      }
+      const resolver = window.__samApprovals?.[id];
+      if (resolver) { resolver(choice); delete window.__samApprovals[id]; }
+    });
+  });
+}
+
 async function callTool(name, input) {
   if (name === 'get_current_datetime') {
     const now = new Date();
@@ -964,6 +1029,37 @@ async function callTool(name, input) {
       result: JSON.stringify({ presented: true, options: options.map(o => o.label) }),
       cards: [{ type: 'options', data: { question: input.question || '', options } }]
     };
+  }
+
+  // Approval gate for Vercel/GitHub write actions. Renders an Approve /
+  // Cancel card inline, blocks until Bryan taps, then executes (with a
+  // minted approval_token) or returns cancelled.
+  if (name === 'propose_action') {
+    const target_action = input.target_action;
+    const target_params = input.target_params || {};
+    const title = input.title || 'Confirm action';
+    const description = input.description || '';
+    const id = 'ap' + Date.now() + Math.random().toString(36).slice(2,6);
+
+    // Render the pending card; wait for tap.
+    renderApprovalCard(id, title, description, target_action);
+    const decision = await new Promise((resolve) => {
+      window.__samApprovals = window.__samApprovals || {};
+      window.__samApprovals[id] = resolve;
+    });
+
+    if (decision === 'cancel') {
+      return { result: JSON.stringify({ cancelled: true, reason: 'Bryan tapped Cancel' }) };
+    }
+
+    try {
+      const mint = await (await fetch(API+'/admin', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'mint_approval', params:{ target_action, target_params } }) })).json();
+      const approval_token = mint.approval_token;
+      const exec = await (await fetch(API+'/admin', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action: target_action, params: { ...target_params, approval_token } }) })).json();
+      return { result: JSON.stringify({ approved: true, target_action, execution: exec }) };
+    } catch (e) {
+      return { result: JSON.stringify({ approved: true, error: String(e?.message || e) }) };
+    }
   }
 
   // Chalkboard tools run entirely client-side
@@ -1016,6 +1112,13 @@ async function callTool(name, input) {
     create_blog_post: ['blog',{action:'create_post'}],
     create_invoice: ['invoice',{action:'create_invoice'}],
     get_pricing: ['invoice',{action:'get_pricing'}],
+    search_drive: ['drive',{action:'search_drive'}],
+    list_drive_files: ['drive',{action:'list_drive_files'}],
+    read_drive_file: ['drive',{action:'read_drive_file'}],
+    vercel_list_projects: ['admin',{action:'vercel_list_projects'}],
+    vercel_list_env_vars: ['admin',{action:'vercel_list_env_vars'}],
+    vercel_list_deployments: ['admin',{action:'vercel_list_deployments'}],
+    github_list_repos: ['admin',{action:'github_list_repos'}],
   };
 
   const route = routeMap[name];
@@ -1036,6 +1139,8 @@ async function callTool(name, input) {
   if (name === 'find_places' && data.places) data.places.forEach(p => cards.push({type:'places',data:p}));
   if (name === 'send_sms') cards.push({type:'sms',data:{to:input.to,body:input.body,status:data.status||'ready'}});
   if (name === 'schedule_17_week_followup' && data.events) data.events.forEach(e => cards.push({type:'calendar',data:{id:'f'+Date.now(),title:e.title,start:e.start,end:e.end,location:e.location}}));
+  if ((name === 'search_drive' || name === 'list_drive_files') && data.files) data.files.forEach(f => cards.push({type:'drive',data:f}));
+  if (name === 'read_drive_file' && data.id) cards.push({type:'drive',data:{id:data.id,name:data.name,mime_type:data.mime_type,link:data.link,preview:data.content?.slice(0,200)}});
 
   // For 17-week followup, also create the calendar events
   if (name === 'schedule_17_week_followup' && data.events) {

@@ -6,9 +6,19 @@
 
 ## What this repo is
 
-This is **Samantha** — a personal AI command center / PWA for Bryan O'Neill Gillis, owner of NorCal CARB Mobile LLC. She runs on his phone as a web app (Vercel-deployed), is powered by Claude Sonnet 4 via the Anthropic API, and manages his whole operation: calendar, email, customers, invoicing, compliance, projects, and a live to-do chalkboard.
+This is **Samantha Gillis** — Bryan O'Neill Gillis's first "employee" at NorCal CARB Mobile LLC. She's a real Google Workspace user (samantha@norcalcarbmobile.com, aliased as admin@), runs as a PWA on his phone (Vercel-deployed), and is powered by Claude Sonnet 4. She manages his whole operation: calendar, email, Drive, customers, invoicing, compliance, projects, and a live to-do chalkboard.
+
+Bryan's identities she needs to know about:
+- `bryan@norcalcarbmobile.com` — main business email (currently delegated to samantha@)
+- `admin@mobilecarbsmoketest.com` — **primary Drive / main document source** for the business
+- `bgillis99@gmail.com` — personal Gmail, holds some shared Drive folders
+- `fsu9913@gmail.com` — additional account Bryan owns, holds some shared Drive folders
+
+Mail flow caveat: Bryan flagged that outgoing samantha@ mail is currently landing in recipients' junk. He plans to fix this week (probably SPF/DKIM/DMARC). Don't block on it.
 
 **Bryan is 48, single, no kids, builds everything himself. CEO/tester/driver/marketer/developer in one. Values directness. Spends most of his day driving, so the app is voice-first, tap-first.**
+
+**Samantha's access pattern:** she authenticates once as `samantha@norcalcarbmobile.com` via OAuth. Bryan's calendar is shared with her (default `calendar_id`). His Gmail inbox is delegated to her (default `mailbox`). Her Drive sees her own files plus anything shared with samantha@ from Bryan's other accounts — **primary business Drive is admin@mobilecarbsmoketest.com**, supplementary folders from bryan@norcalcarbmobile.com, bgillis99@gmail.com, and fsu9913@gmail.com. She can read Google Docs, Sheets, Slides, PDFs, and plain text files.
 
 Repo: `bgillis99-pixel/gillybelichick`
 Live at: `gillybelichick.vercel.app`
@@ -22,7 +32,7 @@ Future domain: `bryanoneillgillis.com` (purchased on Vercel, not yet added to th
 - **Static files** are served from `/public` per `vercel.json` (`outputDirectory: "public"`). The root `index.html` is kept as a duplicate for safety — when you edit one, sync both.
 - **Backend**: Vercel serverless functions in `/api/samantha/`:
   - `chat.ts` — THE core. Inlines the system prompt AND all tool definitions. Do NOT try to import these from `/src/` — Vercel's Node runtime can't resolve that path and it will 500.
-  - `calendar.ts`, `email.ts`, `maps.ts`, `sms.ts`, `company.ts`, `asana.ts`, `blog.ts`, `invoice.ts`, `followup.ts` — one file per tool category.
+  - `calendar.ts`, `email.ts`, `drive.ts`, `maps.ts`, `sms.ts`, `company.ts`, `asana.ts`, `blog.ts`, `invoice.ts`, `followup.ts` — one file per tool category.
 - **AI**: Claude Sonnet 4 (`claude-sonnet-4-20250514`) via `@anthropic-ai/sdk`. The Anthropic key is looked up under any of these env var names (first match wins): `ANTHROPIC_API_KEY`, `CLAUDE_API_KEY`, `SAMANTHA_API_KEY`, `SAMANTHA`, `CLAUDE`, `ANTHROPIC_KEY`. Bryan tends to name things in plain language, so we meet him where he is instead of forcing a canonical name. Lookup logic is inlined in `chat.ts` and `status.ts`.
 
 ## Key files
@@ -38,9 +48,11 @@ Future domain: `bryanoneillgillis.com` (purchased on Vercel, not yet added to th
 | `vercel.json` | Minimal. Just `outputDirectory: "public"` + API rewrites. |
 | `package.json` | Only 2 deps: `@anthropic-ai/sdk`, `googleapis`. Keep it lean. |
 
-## What's built (current state, v1.1)
+## What's built (current state, v1.2)
 
-- **25 tools**: calendar (4), email (3), FMCSA (1), maps (2), SMS (1), Asana (4), blog (3), invoicing (2), datetime (1), chalkboard (4), ask_bryan (1), 17-week followup (2), pricing (1).
+- **28 tools**: calendar (2), email (3), **drive (3 — new: `search_drive`, `list_drive_files`, `read_drive_file`)**, FMCSA (1), maps (2), SMS (1), Asana (4), blog (3), invoicing (2), datetime (1), chalkboard (4), ask_bryan (1), 17-week followup (2), pricing (1).
+- **Samantha-as-employee identity** (v1.2): she's a real Workspace user (samantha@norcalcarbmobile.com, alias admin@). System prompt treats her as Bryan's assistant. Email tools default to bryan@'s inbox (via delegation), calendar tools default to bryan@'s calendar (shared). Both take an override parameter (`mailbox`, `calendar_id`) when she needs her own or another account.
+- **Drive access** (v1.2): `drive.readonly` scope. Reads Google Docs (as text), Sheets (as CSV), Slides (as text), PDFs (via `pdf-parse`), and plain text. Default listing shows her root + "shared with me" so she sees Bryan's personal Gmail Drive folders if shared to samantha@.
 - **17-week retest engine**: every test scheduled auto-creates reminders at week 15 + retest-due event at week 17. This is the #1 business-critical feature.
 - **Voice**: Web Speech API input, browser TTS output.
 - **Chalkboard** (v1.1): Clipboard button in header with live count badge. Slide-up panel with open to-dos. Samantha adds proactively when Bryan mentions anything he needs to remember. localStorage-backed (300-item cap).
@@ -80,6 +92,15 @@ Each agent inherits the visual state pattern (hair up/down for Samantha → hard
 ## Optional env vars
 
 - `VERCEL_DEPLOY_HOOK_URL` — enables the one-tap "Redeploy production" button on the status page. Create at Vercel → Settings → Git → Deploy Hooks, then paste the URL as this env var.
+- `SAMANTHA_BASE_URL` — pins the OAuth redirect URI to one canonical host (e.g. `https://bryanoneillgillis.com`). Without it, the redirect URI is computed from the request host, so visits from `bryanoneillgillis.com`, `www.bryanoneillgillis.com`, and `gillybelichick.vercel.app` each produce a different URI — and Google Cloud Console only accepts **exact** matches on registered URIs. Set this to whichever domain you registered in Google Cloud. Visits from non-canonical hosts 302 to the canonical one before the OAuth flow starts.
+- `DEFAULT_MAILBOX` — override Gmail default (normally `bryan@norcalcarbmobile.com`).
+- `DEFAULT_CALENDAR_ID` — override Calendar default (normally `bryan@norcalcarbmobile.com`).
+
+## Required Google env vars (for calendar/email/drive)
+
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — OAuth app credentials (Internal consent screen since samantha@ is in the org).
+- `GOOGLE_REFRESH_TOKEN` — obtained by visiting `/api/samantha/status?auth` and signing in as **samantha@norcalcarbmobile.com** (not bryan@).
+- Scopes granted: `gmail.readonly`, `gmail.compose`, `calendar`, `drive.readonly`.
 
 ## Phase 2 / parked follow-ups
 
