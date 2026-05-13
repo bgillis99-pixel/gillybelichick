@@ -6,15 +6,36 @@ import { google } from 'googleapis';
 // OAuth creds. Override per-tool via `calendar_id` param.
 const DEFAULT_CALENDAR_ID = process.env.DEFAULT_CALENDAR_ID || 'bryan@norcalcarbmobile.com';
 
+const CALENDAR_SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
+
+// Service account + domain-wide delegation preferred. The subject is the
+// identity Samantha "is" -- DEFAULT_IMPERSONATE_USER or samantha@. She then
+// accesses bryan@'s calendar via the shared-calendar mechanism (calendarId).
+// Falls back to the legacy OAuth refresh token if SA key isn't set.
 function getOAuth2Client() {
+  const saJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  if (saJson) {
+    const credentials = JSON.parse(saJson);
+    return new google.auth.JWT({
+      email: credentials.client_email,
+      key: credentials.private_key,
+      scopes: CALENDAR_SCOPES,
+      subject: process.env.DEFAULT_IMPERSONATE_USER || 'samantha@norcalcarbmobile.com',
+    });
+  }
   const client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET
+    process.env.GOOGLE_CLIENT_SECRET,
   );
-  client.setCredentials({
-    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-  });
+  client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
   return client;
+}
+
+function credsConfigured(): boolean {
+  return Boolean(
+    process.env.GOOGLE_SERVICE_ACCOUNT_KEY ||
+    (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_REFRESH_TOKEN),
+  );
 }
 
 export const config = {
@@ -34,8 +55,8 @@ export default async function handler(req: any, res: any) {
     // Handle them before the OAuth check so they work even pre-OAuth.
     if (action === 'schedule_17_week_followup' || action === 'get_upcoming_retests' || action === 'retest_sweep') {
       // Skip the credentials check; jump to the followup branch below.
-    } else if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_REFRESH_TOKEN) {
-      return res.status(500).json({ error: 'Google Calendar credentials not configured' });
+    } else if (!credsConfigured()) {
+      return res.status(500).json({ error: 'Google Calendar credentials not configured. Set GOOGLE_SERVICE_ACCOUNT_KEY (preferred) or GOOGLE_CLIENT_ID + GOOGLE_REFRESH_TOKEN.' });
     }
 
     const calendarId = params?.calendar_id || DEFAULT_CALENDAR_ID;

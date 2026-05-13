@@ -6,6 +6,7 @@
     { "source": "/api/samantha/auth", "destination": "/api/samantha/status?auth" },
     { "source": "/api/samantha/sms-inbound", "destination": "/api/samantha/sms" },
     { "source": "/api/samantha/cron-morning", "destination": "/api/samantha/status?cron=morning" },
+    { "source": "/api/samantha/slack", "destination": "/api/samantha/status?action=slack" },
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],
   "crons": [

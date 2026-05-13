@@ -1,6 +1,8 @@
 import { google } from 'googleapis';
 
-export const config = { maxDuration: 10 };
+// 30s gives Slack 3s for ack + ~25s for Anthropic call + Slack postMessage.
+// Hobby caps at 60s; we stay well under.
+export const config = { maxDuration: 30 };
 
 // ── Status dashboard ──
 
@@ -115,8 +117,37 @@ function redirectUriBox(redirectUri: string, pinned: boolean): string {
 function setupPage(redirectUri: string): string {
   const pinned = Boolean(process.env.SAMANTHA_BASE_URL);
   return authPage('Samantha · Google Setup', `
-<div class="card">
-  <h2>Step 1: Create Google Cloud credentials</h2>
+<div class="card" style="background:#E8F5E9;border-left:4px solid #2E7D32">
+  <h2 style="color:#2E7D32">RECOMMENDED: Service Account + Domain-Wide Delegation</h2>
+  <p><b>Skip OAuth entirely.</b> Service-account auth doesn't expire weekly, doesn't need a consent screen, and can impersonate any user in your Workspace silently. Setup is 10 minutes of clicks, one time, forever.</p>
+  <ol>
+    <li><b>Google Cloud Console</b> → IAM & Admin → Service Accounts → <b>Create Service Account</b><br>
+      &bull; Name: <code>samantha-impersonator</code><br>
+      &bull; Description: "Samantha Gillis -- Workspace impersonation"<br>
+      &bull; Skip the optional role grant, click Done.</li>
+    <li>Open the new service account → <b>Keys</b> tab → <b>Add Key → JSON</b> → download the file.</li>
+    <li>Same service account page → <b>Show advanced settings</b> → copy the <b>Unique ID</b> (long number).</li>
+    <li><b>APIs & Services → Library</b>, enable all three:<br>
+      &bull; <b>Gmail API</b><br>
+      &bull; <b>Google Calendar API</b><br>
+      &bull; <b>Google Drive API</b></li>
+    <li><b>Google Workspace Admin Console</b> (admin.google.com, sign in as the Workspace admin) → Security → Access and data control → <b>API controls</b> → <b>Domain-wide Delegation</b> → <b>Add new</b>:<br>
+      &bull; Client ID: paste the Unique ID from step 3<br>
+      &bull; OAuth scopes (comma-separated):<br>
+      <code style="white-space:nowrap;font-size:11px">https://www.googleapis.com/auth/gmail.readonly,https://www.googleapis.com/auth/gmail.compose,https://www.googleapis.com/auth/gmail.send,https://www.googleapis.com/auth/calendar.events,https://www.googleapis.com/auth/drive.readonly</code><br>
+      &bull; Authorize.</li>
+    <li><b>Vercel env vars</b> → add:<br>
+      &bull; <code>GOOGLE_SERVICE_ACCOUNT_KEY</code> = (paste the entire JSON file contents, including the curly braces)<br>
+      &bull; <code>DEFAULT_IMPERSONATE_USER</code> = <code>samantha@norcalcarbmobile.com</code><br>
+      &bull; Select all 3 environments. Save.</li>
+  </ol>
+  <p style="font-size:13px;color:#558B2F"><b>That's it.</b> No "Authorize" button needed. Redeploy, ask Samantha "what's on my calendar?", you're done.</p>
+</div>
+
+<div class="card" style="opacity:0.75">
+  <h2 style="color:#8B8B8B">Alternative (legacy): OAuth refresh-token flow</h2>
+  <p style="font-size:13px">Use this only if you can't get Workspace admin access to set up domain-wide delegation. Refresh tokens expire every 7 days unless you publish the OAuth app, and require an "Authorize" click in a browser.</p>
+  <h3 style="font-size:14px">Step 1: Create Google Cloud credentials</h3>
   <ol>
     <li>Go to <a href="https://console.cloud.google.com/projectcreate" target="_blank">console.cloud.google.com</a> and create a project named "Samantha".</li>
     <li><b>APIs & Services → Library</b>, enable all three:<br>
@@ -136,15 +167,15 @@ function setupPage(redirectUri: string): string {
       &bull; Click Create, copy <b>Client ID</b> and <b>Client Secret</b></li>
   </ol>
 </div>
-<div class="card">
-  <h2>Step 2: Add to Vercel</h2>
+<div class="card" style="opacity:0.75">
+  <h2 style="color:#8B8B8B">Step 2: Add to Vercel</h2>
   <p>Go to <a href="https://vercel.com/carbcleantruckcheckapp/gillybelichick/settings/environment-variables" target="_blank">Vercel env var settings</a> and add:</p>
   <p><code>GOOGLE_CLIENT_ID</code> = (the client ID you just copied)<br>
   <code>GOOGLE_CLIENT_SECRET</code> = (the client secret you just copied)</p>
   <p>Select all 3 environments, save. Wait ~45s for redeploy.</p>
 </div>
-<div class="card">
-  <h2>Step 3: Come back here</h2>
+<div class="card" style="opacity:0.75">
+  <h2 style="color:#8B8B8B">Step 3: Come back here</h2>
   <p>After the redeploy, refresh this page. You'll see an "Authorize Samantha" button.</p>
 </div>`);
 }
@@ -286,13 +317,30 @@ function fmtTime(iso: string | null | undefined): string {
 }
 
 function getCronOAuth2Client() {
+  const saJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  if (saJson) {
+    const credentials = JSON.parse(saJson);
+    return new google.auth.JWT({
+      email: credentials.client_email,
+      key: credentials.private_key,
+      scopes: ['https://www.googleapis.com/auth/calendar.events'],
+      subject: process.env.DEFAULT_IMPERSONATE_USER || 'samantha@norcalcarbmobile.com',
+    });
+  }
   const client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
   client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
   return client;
 }
 
+function googleCredsConfigured(): boolean {
+  return Boolean(
+    process.env.GOOGLE_SERVICE_ACCOUNT_KEY ||
+    (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_REFRESH_TOKEN),
+  );
+}
+
 async function fetchTodaysCalendar(): Promise<Array<{ summary: string; start: string }>> {
-  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_REFRESH_TOKEN) return [];
+  if (!googleCredsConfigured()) return [];
   const calendar = google.calendar({ version: 'v3', auth: getCronOAuth2Client() });
   const now = new Date();
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -313,7 +361,7 @@ async function fetchTodaysCalendar(): Promise<Array<{ summary: string; start: st
 }
 
 async function fetchRetestsThisWeek(): Promise<Array<{ summary: string; start: string }>> {
-  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_REFRESH_TOKEN) return [];
+  if (!googleCredsConfigured()) return [];
   const calendar = google.calendar({ version: 'v3', auth: getCronOAuth2Client() });
   const now = new Date();
   const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -386,6 +434,125 @@ async function handleCronMorning(req: any, res: any) {
   }
 }
 
+// ── Slack events handler (folded in to keep us under 12-function cap) ──
+
+const SLACK_SYSTEM_PROMPT = `You are Samantha Gillis replying inside Slack. Constraints:
+- Brevity over polish. One short paragraph or 2-3 bullets max.
+- If you'd normally use ask_bryan to present tap-options, instead write the options as a numbered list in plain text -- Slack message buttons aren't wired yet.
+- Don't claim to send SMS via Google Voice/Messages (no API). Twilio SMS works if SAMANTHA_OWNER_PHONE + TWILIO_* are set.
+- Use Slack markdown sparingly: *bold*, _italic_, \`code\`. No tables (Slack doesn't render them well).`;
+
+function getRawBodyForSlack(req: any): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (typeof req.body === 'string') return resolve(req.body);
+    if (Buffer.isBuffer(req.body)) return resolve(req.body.toString('utf8'));
+    if (req.body && typeof req.body === 'object') return resolve(JSON.stringify(req.body));
+    let data = '';
+    req.on('data', (chunk: Buffer) => (data += chunk.toString('utf8')));
+    req.on('end', () => resolve(data));
+    req.on('error', reject);
+  });
+}
+
+async function verifySlackSignature(req: any, rawBody: string): Promise<boolean> {
+  const secret = process.env.SLACK_SIGNING_SECRET;
+  if (!secret) return false;
+  if (process.env.SLACK_SKIP_SIG_VERIFY === '1') return true;
+  const ts = req.headers['x-slack-request-timestamp'] as string | undefined;
+  const sig = req.headers['x-slack-signature'] as string | undefined;
+  if (!ts || !sig) return false;
+  // Reject anything older than 5 minutes (replay protection)
+  if (Math.abs(Date.now() / 1000 - Number(ts)) > 300) return false;
+  const crypto = await import('crypto');
+  const expected =
+    'v0=' +
+    crypto.createHmac('sha256', secret).update(`v0:${ts}:${rawBody}`).digest('hex');
+  try {
+    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(sig));
+  } catch {
+    return false;
+  }
+}
+
+async function postSlackMessage(channel: string, text: string, threadTs?: string): Promise<void> {
+  const token = process.env.SLACK_BOT_TOKEN;
+  if (!token) throw new Error('SLACK_BOT_TOKEN not set');
+  const body: any = { channel, text };
+  if (threadTs) body.thread_ts = threadTs;
+  const resp = await fetch('https://slack.com/api/chat.postMessage', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify(body),
+  });
+  const data: any = await resp.json();
+  if (!data.ok) throw new Error(`Slack API: ${data.error || resp.status}`);
+}
+
+async function callAnthropicForSlack(userText: string): Promise<string> {
+  const key = getAnthropicKeySource();
+  if (!key) return "My brain isn't connected. Open bryanoneillgillis.com/api/samantha/status.";
+  const Anthropic = (await import('@anthropic-ai/sdk')).default;
+  const anthropic = new Anthropic({ apiKey: key.value });
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 600,
+    system: SLACK_SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: userText }],
+  });
+  let text = '';
+  for (const block of response.content) {
+    if (block.type === 'text') text += block.text;
+  }
+  return text.trim() || "Got it. (No reply text returned.)";
+}
+
+async function handleSlackEvents(req: any, res: any) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+
+  const rawBody = await getRawBodyForSlack(req);
+
+  // Verify signature first (unless explicitly skipped for local testing).
+  if (!(await verifySlackSignature(req, rawBody))) {
+    return res.status(403).json({ error: 'Bad signature' });
+  }
+
+  let payload: any;
+  try { payload = JSON.parse(rawBody); } catch { return res.status(400).json({ error: 'Bad JSON' }); }
+
+  // url_verification: Slack's initial setup challenge
+  if (payload.type === 'url_verification') {
+    return res.status(200).json({ challenge: payload.challenge });
+  }
+
+  if (payload.type !== 'event_callback') {
+    return res.status(200).json({ ok: true });
+  }
+
+  const event = payload.event || {};
+
+  // Only handle direct messages and app mentions. Ignore everything else (typing
+  // indicators, channel joins, bot's own messages, etc.).
+  const isDM = event.type === 'message' && event.channel_type === 'im' && !event.bot_id && !event.subtype;
+  const isMention = event.type === 'app_mention';
+  if (!isDM && !isMention) return res.status(200).json({ ok: true });
+
+  // Acknowledge fast so Slack doesn't retry. We do the LLM call after the
+  // response is sent. Vercel keeps the function running until maxDuration.
+  res.status(200).json({ ok: true });
+
+  try {
+    const text = (event.text || '').replace(/<@[A-Z0-9]+>\s*/g, '').trim();
+    if (!text) return;
+    const reply = await callAnthropicForSlack(text);
+    await postSlackMessage(event.channel, reply, event.thread_ts || event.ts);
+  } catch (err: any) {
+    console.error('Slack event handler error:', err);
+    try {
+      await postSlackMessage(event.channel, `Hit an error: ${err.message}`, event.thread_ts || event.ts);
+    } catch {}
+  }
+}
+
 // ── Main handler ──
 
 export default async function handler(req: any, res: any) {
@@ -399,6 +566,10 @@ export default async function handler(req: any, res: any) {
 
   if (req.query?.action === 'cron-morning' || req.query?.cron === 'morning') {
     return handleCronMorning(req, res);
+  }
+
+  if (req.query?.action === 'slack' || req.headers['x-slack-signature']) {
+    return handleSlackEvents(req, res);
   }
 
   const keyInfo = getAnthropicKeySource();
@@ -422,6 +593,8 @@ export default async function handler(req: any, res: any) {
     anthropic_key_looks_valid: keyLooksValid,
     env_vars: {
       ...anthropicRows,
+      GOOGLE_SERVICE_ACCOUNT_KEY: mask(process.env.GOOGLE_SERVICE_ACCOUNT_KEY),
+      DEFAULT_IMPERSONATE_USER: process.env.DEFAULT_IMPERSONATE_USER || 'NOT SET',
       GOOGLE_CLIENT_ID: mask(process.env.GOOGLE_CLIENT_ID),
       GOOGLE_CLIENT_SECRET: mask(process.env.GOOGLE_CLIENT_SECRET),
       GOOGLE_REFRESH_TOKEN: mask(process.env.GOOGLE_REFRESH_TOKEN),
@@ -431,6 +604,14 @@ export default async function handler(req: any, res: any) {
       CLOUDFLARE_API_TOKEN: mask(process.env.CLOUDFLARE_API_TOKEN),
       CLOUDFLARE_D1_TOKEN: mask(process.env.CLOUDFLARE_D1_TOKEN),
       ELEVENLABS_API_KEY: mask(process.env.ELEVENLABS_API_KEY),
+      TWILIO_ACCOUNT_SID: mask(process.env.TWILIO_ACCOUNT_SID),
+      TWILIO_AUTH_TOKEN: mask(process.env.TWILIO_AUTH_TOKEN),
+      TWILIO_FROM_NUMBER: process.env.TWILIO_FROM_NUMBER || 'NOT SET',
+      SAMANTHA_OWNER_PHONE: process.env.SAMANTHA_OWNER_PHONE || 'NOT SET',
+      SLACK_SIGNING_SECRET: mask(process.env.SLACK_SIGNING_SECRET),
+      SLACK_BOT_TOKEN: mask(process.env.SLACK_BOT_TOKEN),
+      VERCEL_TOKEN: mask(process.env.VERCEL_TOKEN),
+      GITHUB_TOKEN: mask(process.env.GITHUB_TOKEN),
       VERCEL_DEPLOY_HOOK_URL: mask(process.env.VERCEL_DEPLOY_HOOK_URL),
       SAMANTHA_BASE_URL: process.env.SAMANTHA_BASE_URL || 'NOT SET',
     },

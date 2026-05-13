@@ -98,9 +98,32 @@ Each agent inherits the visual state pattern (hair up/down for Samantha → hard
 
 ## Required Google env vars (for calendar/email/drive)
 
+**Preferred: service account + domain-wide delegation.** No OAuth dance, no expiring refresh tokens, can impersonate any Workspace user silently.
+
+- `GOOGLE_SERVICE_ACCOUNT_KEY` — full JSON key (as a string) for a service account that has been granted DWD in Workspace Admin → Security → API controls → Domain-wide Delegation, with scopes `gmail.readonly`, `gmail.compose`, `gmail.send`, `calendar.events`, `drive.readonly`.
+- `DEFAULT_IMPERSONATE_USER` — who Samantha "is" (typically `samantha@norcalcarbmobile.com`). She can still hit bryan@'s mailbox/calendar via per-call `mailbox`/`calendar_id` overrides because they're shared with her.
+
+**Fallback: legacy OAuth (for environments where DWD isn't possible).**
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — OAuth app credentials (Internal consent screen since samantha@ is in the org).
-- `GOOGLE_REFRESH_TOKEN` — obtained by visiting `/api/samantha/status?auth` and signing in as **samantha@norcalcarbmobile.com** (not bryan@).
-- Scopes granted: `gmail.readonly`, `gmail.compose`, `calendar`, `drive.readonly`.
+- `GOOGLE_REFRESH_TOKEN` — obtained by visiting `/api/samantha/status?auth` and signing in as **samantha@norcalcarbmobile.com**.
+
+If `GOOGLE_SERVICE_ACCOUNT_KEY` is set, it wins. Otherwise the code falls back to the OAuth refresh token. Either path works.
+
+## Slack integration
+
+Endpoint: `POST /api/samantha/slack` (rewritten to `/api/samantha/status?action=slack`).
+
+Required env vars:
+- `SLACK_SIGNING_SECRET` — from your Slack app's Basic Information page; used to verify webhook signatures
+- `SLACK_BOT_TOKEN` — `xoxb-...` from OAuth & Permissions; the bot uses this to `chat.postMessage` back
+
+Slack App configuration:
+- Event Subscriptions → Request URL: `https://bryanoneillgillis.com/api/samantha/slack` → Slack POSTs a `url_verification` challenge; the handler returns the challenge so Slack marks it Verified.
+- Subscribe to bot events: `app_mention`, `message.im`
+- OAuth scopes: `chat:write`, `app_mentions:read`, `im:history`, `im:read`, `im:write`
+- Install to workspace, copy the bot token.
+
+The handler responds 200 immediately (Slack's 3-second rule) then calls Claude and posts the reply via `chat.postMessage`. Handles DMs and `@samantha` mentions in channels.
 
 ## Phase 2 / parked follow-ups
 

@@ -7,14 +7,27 @@ import { google } from 'googleapis';
 // Handles: Google Docs, Sheets, Slides via native Drive export, real PDFs
 // via pdf-parse, plain text straight through.
 
+const DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
+
+// Service account + DWD preferred. Subject = the user whose Drive view we
+// want (default samantha@). Drive returns the subject's files + anything
+// shared with them.
 function getOAuth2Client() {
+  const saJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  if (saJson) {
+    const credentials = JSON.parse(saJson);
+    return new google.auth.JWT({
+      email: credentials.client_email,
+      key: credentials.private_key,
+      scopes: DRIVE_SCOPES,
+      subject: process.env.DEFAULT_IMPERSONATE_USER || 'samantha@norcalcarbmobile.com',
+    });
+  }
   const client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET
+    process.env.GOOGLE_CLIENT_SECRET,
   );
-  client.setCredentials({
-    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-  });
+  client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
   return client;
 }
 
