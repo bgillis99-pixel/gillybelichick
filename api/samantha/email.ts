@@ -7,15 +7,43 @@ import { google } from 'googleapis';
 // she's usually being asked about; override per-tool via `mailbox` param.
 const DEFAULT_MAILBOX = process.env.DEFAULT_MAILBOX || 'bryan@norcalcarbmobile.com';
 
-function getOAuth2Client() {
+const GMAIL_SCOPES = [
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/gmail.compose',
+  'https://www.googleapis.com/auth/gmail.send',
+];
+
+// Returns the right auth client plus the right userId for the Gmail API.
+//   - Service account + DWD: subject = the mailbox owner, userId = 'me'.
+//   - OAuth refresh token: single user, userId = mailbox (delegation).
+// Set GOOGLE_SERVICE_ACCOUNT_KEY to the full JSON key (as a string) in
+// Vercel env vars to flip to service-account mode. One-time Workspace
+// Admin grant of GMAIL_SCOPES against this SA's client ID required.
+function getMailboxAuth(mailbox: string) {
+  const saJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  if (saJson) {
+    const credentials = JSON.parse(saJson);
+    const auth = new google.auth.JWT({
+      email: credentials.client_email,
+      key: credentials.private_key,
+      scopes: GMAIL_SCOPES,
+      subject: mailbox,
+    });
+    return { auth, userId: 'me' as const };
+  }
   const client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET
+    process.env.GOOGLE_CLIENT_SECRET,
   );
-  client.setCredentials({
-    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-  });
-  return client;
+  client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+  return { auth: client, userId: mailbox };
+}
+
+function credsConfigured(): boolean {
+  return Boolean(
+    process.env.GOOGLE_SERVICE_ACCOUNT_KEY ||
+    (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_REFRESH_TOKEN),
+  );
 }
 
 function decodeBase64(data: string): string {
@@ -39,19 +67,19 @@ export default async function handler(req: any, res: any) {
   try {
     const { action, params } = req.body;
 
-    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_REFRESH_TOKEN) {
-      return res.status(500).json({ error: 'Gmail credentials not configured' });
+    if (!credsConfigured()) {
+      return res.status(500).json({ error: 'Gmail credentials not configured. Set GOOGLE_SERVICE_ACCOUNT_KEY (preferred) or GOOGLE_CLIENT_ID + GOOGLE_REFRESH_TOKEN.' });
     }
 
-    const auth = getOAuth2Client();
-    const gmail = google.gmail({ version: 'v1', auth });
     const mailbox = params?.mailbox || DEFAULT_MAILBOX;
+    const { auth, userId } = getMailboxAuth(mailbox);
+    const gmail = google.gmail({ version: 'v1', auth });
 
     if (action === 'search_emails') {
       const { query, max_results = 5 } = params;
 
       const listResponse = await gmail.users.messages.list({
-        userId: mailbox,
+        userId,
         q: query,
         maxResults: Math.min(max_results, 10),
       });
@@ -61,7 +89,7 @@ export default async function handler(req: any, res: any) {
 
       for (const msg of messageIds) {
         const detail = await gmail.users.messages.get({
-          userId: mailbox,
+          userId,
           id: msg.id!,
           format: 'metadata',
           metadataHeaders: ['From', 'Subject', 'Date'],
@@ -84,7 +112,7 @@ export default async function handler(req: any, res: any) {
       const { message_id } = params;
 
       const detail = await gmail.users.messages.get({
-        userId: mailbox,
+        userId,
         id: message_id,
         format: 'full',
       });
@@ -132,7 +160,7 @@ export default async function handler(req: any, res: any) {
       ).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
       const response = await gmail.users.drafts.create({
-        userId: mailbox,
+        userId,
         requestBody: {
           message: { raw },
         },
